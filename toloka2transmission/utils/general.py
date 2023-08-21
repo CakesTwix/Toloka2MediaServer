@@ -1,7 +1,7 @@
 """General functions to simplify code"""
 
 
-def getNumbers(string):
+def get_numbers(string):
     """Returns a list of numbers from the string"""
     raw = "".join((ch if ch in "0123456789" else " ") for ch in string)
-    return [i for i in raw.split()]
+    return list(i for i in raw.split())
