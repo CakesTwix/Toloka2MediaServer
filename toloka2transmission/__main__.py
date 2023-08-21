@@ -87,7 +87,7 @@ if args.add:
     )
 
     episode_number = int(
-        input(f"Введіть індекс серії\n{get_numbers(new_torrent.get_files()[0].name)}: ")
+        input(f"Введіть індекс серії\n{new_torrent.get_files()[0].name} : {get_numbers(new_torrent.get_files()[0].name)}: ")
     )
 
     # Write data
