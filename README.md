@@ -17,11 +17,30 @@
 
 > У мене на даний момент немає бажання писати під інші торрент-трекери або щось крім аніме. Я написав суто для себе і роздав вихідний код, щоб ви могли самостійно змінити код і поширювати його далі! Слався Open Source!
 
+Чому я зробив цей скрипт? Хочу дивитися онгоінги і не думати над постійним перейменуванням для свого медіа-сервера Jellyfin, оскільки у кожного свій "стандарт" і тільки одиниці дотримуються стандарту "S01E01", який підтримує мій медіа-сервер.
+Наразі можна качати торренти, де одна директорія (Один сезон), в якому знаходяться серії
+
+```
+The Girl I Like Forgot Her Glasses (S1)
+├── Episode S1E01.mkv
+├── Episode S1E02.mkv
+├── Episode S1E03.mkv
+├── Episode S1E04.mkv
+├── Episode S1E05.mkv
+├── Episode S1E06.mkv
+├── Episode S1E07.mkv
+└── Episode S1E08.mkv
+```
+
 ## Usage/Examples
 
 * Допомога
 	```bash
 	python -m toloka2transmission --help
+	```
+* Оновити всі торренти
+	```bash
+	python -m toloka2transmission
 	```
 * Завантажити нові серії, якщо торрент оновився
 	```bash
@@ -42,7 +61,7 @@ Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC)
 * ### app.ini
 	```ini
 	[Transmission]
-	username = Ім'я користувача
+	username = Імя користувача
 	password = Пароль
 	port = 9091
 	host = localhost
@@ -74,13 +93,20 @@ Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC)
 	publishdate = 2023-08-20T00:00:00
 
 	```
+	
 > [zom] - Коднейм
-episode_number - Вказуємо індекс, звідки брати номер епізоду
-season_number - Просто номер сезону, не індекс
-ext_name - Формат файлу
-torrent_name - Повне ім'я торрента (директорії) в Transmission
-download_dir - Директорія, куди буде скачаний медіа
-publishdate - Системне значення, за яким визначаємо, оновився торрент за час чи ні
+
+> episode_number - Вказуємо індекс, звідки брати номер епізоду
+
+> season_number - Просто номер сезону, не індекс
+
+> ext_name - Формат файлу
+
+> torrent_name - Повне ім'я торрента (директорії) в Transmission
+
+> download_dir - Директорія, куди буде скачаний медіа
+
+> publishdate - Системне значення, за яким визначаємо, оновився торрент за час чи ні
 	
 ## Authors
 
