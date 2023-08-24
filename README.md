@@ -56,6 +56,13 @@ The Girl I Like Forgot Her Glasses (S1)
 > **Примітка:** У торренті береться відразу Директорія/Файл.mkv, наприклад:
 Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC) Ukr DVO SUB.mkv
 
+## Crontab (Every day at 8:00)
+```bash
+crontab -e
+```
+> 0 8 * * * cd /path/to/Toloka2Transmission/ && python3 -m toloka2transmission
+
+
 ## Configs
 
 * ### app.ini
