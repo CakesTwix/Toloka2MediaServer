@@ -60,6 +60,15 @@ Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC)
 
 * ### app.ini
 	```ini
+	[Python]
+	# NOTSET
+	# DEBUG
+	# INFO
+	# WARNING
+	# ERROR
+	# CRITICAL
+	logging = INFO
+
 	[Transmission]
 	username = Імя користувача
 	password = Пароль
@@ -82,6 +91,7 @@ Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC)
 	torrent_name = Zom 100: Zombie ni Naru made ni Shitai 100 no Koto (2023)
 	download_dir = /media/HDD/Jellyfin/Anime
 	publishdate = 2023-08-15T00:00:00
+	guid = https:/.../t670500
 	
 	[horimia]
 	name = Хорімія. Фрагменти (серії 01-08 з 12) / Horimiya: Piece (2023) WEB-DL 1080p H.265 Ukr/Jap | Sub Ukr
@@ -91,7 +101,7 @@ Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC)
 	torrent_name = Horimiya - The Missing Pieces
 	download_dir = /media/HDD/Jellyfin/Anime
 	publishdate = 2023-08-20T00:00:00
-
+	guid = https://.../t670247
 	```
 	
 > [zom] - Коднейм
@@ -107,6 +117,8 @@ Horimiya - Piece [WEBDL 1080p HEVC]/Horimiya - Piece - 01 (WEBDL 1080p HEVC AAC)
 > download_dir - Директорія, куди буде скачаний медіа
 
 > publishdate - Системне значення, за яким визначаємо, оновився торрент за час чи ні
+
+> guid - Системне значення, за ним визначаємо потрібне аніме зі списку
 	
 ## Authors
 
