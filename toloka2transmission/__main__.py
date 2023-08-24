@@ -38,10 +38,17 @@ logging.basicConfig(level=app["Python"]["logging"])
 # Add new anime to titles.ini
 if args.add:
     torrent = search(args.add)["Results"]
+    
+    # Check results
+    if len(torrent) == 0:
+        logging.info("Нічого не знайшли :(")
+        sys.exit()
+
     for index, item in enumerate(torrent[:10]):
         print(f"{index} : {item['Title']} - {item['Guid']}")
 
     torrent = torrent[int(input("Введіть номер потрібного торрента: "))]
+
 
     codename = input("Enter the codename: ")
     config_update = configparser.RawConfigParser()
