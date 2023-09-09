@@ -1,2 +1,3 @@
 transmission_rpc
 requests
+git+https://github.com/CakesTwix/toloka2python

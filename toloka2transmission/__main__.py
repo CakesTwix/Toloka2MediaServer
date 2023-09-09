@@ -4,10 +4,10 @@ import configparser
 import logging
 import sys
 
-from toloka2transmission.utils.general import get_numbers
-from toloka2transmission.utils.transmission import search, update
+from toloka2transmission.config import app, titles, toloka
 from toloka2transmission.transmission import TransmissionClient
-from toloka2transmission.config import titles, app
+from toloka2transmission.utils.general import get_numbers
+from toloka2transmission.utils.transmission import update
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(
@@ -37,7 +37,7 @@ logging.basicConfig(level=app["Python"]["logging"])
 
 # Add new anime to titles.ini
 if args.add:
-    torrent = search(args.add)["Results"]
+    torrent = toloka.search(args.add)
     
     # Check results
     if len(torrent) == 0:
@@ -45,16 +45,14 @@ if args.add:
         sys.exit()
 
     for index, item in enumerate(torrent[:10]):
-        print(f"{index} : {item['Title']} - {item['Guid']}")
+        print(f"{index} : {item.name} - {item.url}")
 
     torrent = torrent[int(input("Введіть номер потрібного торрента: "))]
-
 
     codename = input("Enter the codename: ")
     config_update = configparser.RawConfigParser()
     config_update.add_section(codename)
-    config_update.set(codename, "name", args.add)
-    config_update.set(codename, "Guid", torrent["Guid"])
+    config_update.set(codename, "Guid", torrent.url)
 
     # Get data
     season_number = input("Введіть номер сезону: ")
@@ -66,7 +64,7 @@ if args.add:
     # Download torrent file
     new_torrent = TransmissionClient.get_torrent(
         TransmissionClient.add_torrent(
-            torrent["Link"],
+            toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link}"),
             download_dir=download_dir,
         ).id
     )
@@ -83,10 +81,9 @@ if args.add:
     config_update.set(codename, "ext_name", ext_name)
     config_update.set(codename, "torrent_name", torrent_name)
     config_update.set(codename, "download_dir", download_dir)
-    config_update.set(codename, "publishdate", torrent["PublishDate"])
+    config_update.set(codename, "publishdate", torrent.date)
 
     for name in new_torrent.get_files():
-        logging.info(name.name)
         # Episode S1E01.mkv
         new_name = f"Episode S{season_number}E{get_numbers(name.name)[episode_number]}{ext_name}"
         TransmissionClient.rename_torrent_path(new_torrent.id, name.name, new_name)
