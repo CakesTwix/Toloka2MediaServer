@@ -13,7 +13,7 @@
 </p>
 
 Консольна утиліта для докачування нових серій аніме з Toloka.
-Для скачування торрент-файлів використовується selfhost рішення Jackett!
+Для скачування торрент-файлів використовується власна бібліотека toloka2python!
 
 > У мене на даний момент немає бажання писати під інші торрент-трекери або щось крім аніме. Я написав суто для себе і роздав вихідний код, щоб ви могли самостійно змінити код і поширювати його далі! Слався Open Source!
 
@@ -84,14 +84,13 @@ crontab -e
 	protocol = http
 	rpc = /transmission/rpc
 	
-	[Jackett]
-	url = https://domain.com # Посилання на Jacket
-	api_key = ... # API Ключ
+	[Toloka]
+	username = 
+	password = 
 	```
 * ### titles.ini
 	```ini
 	[zom]
-	name = Zom 100: Список справ майбутнього зомбі (05 з 12) / Zom 100: Zombie ni Naru made ni Shitai 100 no Koto (2023) WEBRip 1080p H.265 Ukr/Jap | sub Ukr
 	episode_number = 7
 	season_number = 1
 	ext_name = .mkv
@@ -101,7 +100,6 @@ crontab -e
 	guid = https:/.../t670500
 	
 	[horimia]
-	name = Хорімія. Фрагменти (серії 01-08 з 12) / Horimiya: Piece (2023) WEB-DL 1080p H.265 Ukr/Jap | Sub Ukr
 	episode_number = 1
 	season_number = 1
 	ext_name = .mkv
