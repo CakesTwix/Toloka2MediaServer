@@ -33,7 +33,7 @@ if args.num:
     sys.exit()
 
 # Set Logging
-logging.basicConfig(level=app["Python"]["logging"])
+logging.basicConfig(level="INFO")
 
 # Add new anime to titles.ini
 if args.add:

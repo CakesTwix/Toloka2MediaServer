@@ -19,16 +19,12 @@ def update(title: str, force: bool):
         # We have some changes! Do redownload torrent
         logging.info(f"Date is different! : {torrent_toloka.name}")
 
-        # Update date and write
-        titles[title]["PublishDate"] = torrent_toloka.registered_date
-        with open("titles.ini", "w", encoding="utf-8") as conf:
-            titles.write(conf)
-
     # Get all torrents and get one by name
     for torrent in TransmissionClient.get_torrents():
         if titles[title]["torrent_name"] == torrent.name or force:
             # Remove old torrent
-            TransmissionClient.remove_torrent(torrent.id)
+            if force == False:
+                TransmissionClient.remove_torrent(torrent.id)
                 
             # Download torrent file
             new_torrent = TransmissionClient.get_torrent(
@@ -58,6 +54,11 @@ def update(title: str, force: bool):
             # Check old files
             TransmissionClient.verify_torrent(new_torrent.id)
             TransmissionClient.start_torrent(new_torrent.id)
+
+            # Update date and write
+            titles[title]["PublishDate"] = torrent_toloka.registered_date
+            with open("titles.ini", "w", encoding="utf-8") as conf:
+                titles.write(conf)
 
             # No need check next torrents
             break
