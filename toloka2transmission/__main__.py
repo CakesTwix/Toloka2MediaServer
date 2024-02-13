@@ -85,7 +85,7 @@ if args.add:
 
     for name in new_torrent.get_files():
         # Episode S1E01.mkv
-        new_name = f"Episode S{season_number}E{get_numbers(name.name)[episode_number]}{ext_name}"
+        new_name = f"{torrent_name} S{season_number}E{get_numbers(name.name)[episode_number]}{ext_name}".replace(" ", ".")
         TransmissionClient.rename_torrent_path(new_torrent.id, name.name, new_name)
 
     # Rename Torrent

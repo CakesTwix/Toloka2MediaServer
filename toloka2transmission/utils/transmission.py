@@ -23,7 +23,7 @@ def update(title: str, force: bool):
     for torrent in TransmissionClient.get_torrents():
         if titles[title]["torrent_name"] == torrent.name or force:
             # Remove old torrent
-            if force == False:
+            if force != True:
                 TransmissionClient.remove_torrent(torrent.id)
                 
             # Download torrent file
@@ -39,7 +39,7 @@ def update(title: str, force: bool):
                 # New torrent Files
                 for name in new_torrent.get_files():
                     # Episode S1E01.mkv
-                    new_name = f"Episode S{titles[title]['season_number']}E{get_numbers(name.name)[int(titles[title]['episode_number'])]}{titles[title]['ext_name']}"
+                    new_name = f"{titles[title]['torrent_name']} S{titles[title]['season_number']}E{get_numbers(name.name)[int(titles[title]['episode_number'])]}{titles[title]['ext_name']}".replace(" ", ".")
                     TransmissionClient.rename_torrent_path(
                         new_torrent.id, name.name, new_name
                     )
