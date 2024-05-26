@@ -11,8 +11,10 @@ titles.read("toloka2anime/data/titles.ini")
 toloka = Toloka(app["Toloka"]["username"], app["Toloka"]["password"])
 selectedClient = app["Toloka"]["client"]
 
-def update_config_onAdd(config_update, torrent_hash, codename, episode_number, season_number, ext_name, torrent_name, download_dir, date, release_group, meta, adjusted_episode_number):
+def update_config_onAdd(config_update, torrent_hash, torrent_guid, codename, episode_number, season_number, ext_name, torrent_name, download_dir, date, release_group, meta, adjusted_episode_number):
     """Update configuration file when a new torrent is added."""
+    config_update.read("toloka2anime/data/titles.ini", encoding="utf-8")
+    
     config_update[codename] = {
         "episode_number": str(episode_number),
         "season_number": str(season_number),
@@ -23,7 +25,8 @@ def update_config_onAdd(config_update, torrent_hash, codename, episode_number, s
         "release_group": release_group,
         "meta": meta,
         "hash": torrent_hash,
-        "adjusted_episode_number": adjusted_episode_number
+        "adjusted_episode_number": adjusted_episode_number,
+        "guid": torrent_guid
     }
     with open("toloka2anime/data/titles.ini", "w", encoding="utf-8") as f:
         config_update.write(f)

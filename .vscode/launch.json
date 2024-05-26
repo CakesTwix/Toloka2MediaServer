@@ -21,6 +21,16 @@
             "args": [
                 "--add", "Фантазія місячного світла"
             ],
+        },
+        
+        {
+            "name": "Python Debugger: Module Add Second",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "toloka2anime",
+            "args": [
+                "--add", "Про моє переродження в слиз"
+            ],
         }
     ]
 }

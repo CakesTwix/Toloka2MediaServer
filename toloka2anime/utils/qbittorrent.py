@@ -58,7 +58,7 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
     client.torrents.resume(torrent_hashes=torrent_hash)
 
     if new:
-        update_config_onAdd(config_update, torrent_hash, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'], adjusted_episode_number)
+        update_config_onAdd(config_update, torrent_hash, torrent.download_link, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'], adjusted_episode_number)
     else:
         update_config_onUpdate(config, torrent.registered_date, torrent_hash)
 
