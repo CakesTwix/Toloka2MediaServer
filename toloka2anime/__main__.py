@@ -3,11 +3,17 @@ import argparse
 import configparser
 import logging
 import sys
+from toloka2anime.config import app, titles, toloka, selectedClient
 
-from toloka2transmission.config import app, titles, toloka
-from toloka2transmission.transmission import TransmissionClient
-from toloka2transmission.utils.general import get_numbers
-from toloka2transmission.utils.transmission import update
+match selectedClient:
+    case "Transmission":
+        from toloka2anime.clients.transmission import client
+        from toloka2anime.utils.transmission import update, add
+    case "qBittorrent":
+        from toloka2anime.clients.qbit import client
+        from toloka2anime.utils.qbit import update, add
+
+from toloka2anime.utils.general import get_numbers
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(
@@ -33,9 +39,9 @@ if args.num:
     sys.exit()
 
 # Set Logging
-logging.basicConfig(level="INFO")
+logging.basicConfig(level=app["Python"]["logging"])
 
-# Add new anime to titles.ini
+
 if args.add:
     torrent = toloka.search(args.add)
     
@@ -48,7 +54,7 @@ if args.add:
         print(f"{index} : {item.name} - {item.url}")
 
     torrent = torrent[int(input("Введіть номер потрібного торрента: "))]
-
+    
     codename = input("Enter the codename: ")
     config_update = configparser.RawConfigParser()
     config_update.add_section(codename)
@@ -57,48 +63,13 @@ if args.add:
     # Get data
     season_number = input("Введіть номер сезону: ")
 
-    ext_name = input('Введіть розширення у файлу, наприклад ".mkv": ')
+    ext_name = input('Введіть розширення у файлу, наприклад ".mkv": ') or ".mkv"
     download_dir = input("Введіть путь, куди завантажити файли: ")
     torrent_name = input("Введіть назву директорії, куди будуть завантажені файли: ")
+    release_group = input("Введіть назву реліз групи. У разі відсутності вибору буде автор роздачи: ") or torrent.author
+    meta = input("Введіть додаткові теги метаданих. у разі відсутності вибору буде [WEBRip-1080p][UK+JA]: ") or "[WEBRip-1080p][UK+JA]"
 
-    # Download torrent file
-    new_torrent = TransmissionClient.get_torrent(
-        TransmissionClient.add_torrent(
-            toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link}"),
-            download_dir=download_dir,
-        ).id
-    )
-
-    episode_number = int(
-        input(
-            f"Введіть індекс серії\n{new_torrent.get_files()[0].name} : {get_numbers(new_torrent.get_files()[0].name)}: "
-        )
-    )
-
-    # Write data
-    config_update.set(codename, "episode_number", episode_number)
-    config_update.set(codename, "season_number", season_number)
-    config_update.set(codename, "ext_name", ext_name)
-    config_update.set(codename, "torrent_name", torrent_name)
-    config_update.set(codename, "download_dir", download_dir)
-    config_update.set(codename, "publishdate", torrent.date)
-
-    for name in new_torrent.get_files():
-        # Episode S1E01.mkv
-        new_name = f"{torrent_name} S{season_number}E{get_numbers(name.name)[episode_number]}{ext_name}".replace(" ", ".")
-        TransmissionClient.rename_torrent_path(new_torrent.id, name.name, new_name)
-
-    # Rename Torrent
-    TransmissionClient.rename_torrent_path(
-        new_torrent.id, new_torrent.name, torrent_name
-    )
-
-    # Start
-    TransmissionClient.start_torrent(new_torrent.id)
-
-    # Write to config
-    with open("titles.ini", "a", encoding="utf-8") as f:
-        config_update.write(f)
+    add(torrent, codename, config_update, season_number, ext_name, download_dir, torrent_name, release_group, meta)
     sys.exit()
 
 # Update this anime

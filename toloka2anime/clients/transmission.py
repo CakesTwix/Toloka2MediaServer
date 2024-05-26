@@ -5,7 +5,7 @@ from transmission_rpc import Client
 from transmission_rpc.error import TransmissionConnectError
 from transmission_rpc.utils import format_size
 
-from toloka2transmission.config import app
+from toloka2anime.config import app
 
 # Set Logging
 logging.basicConfig(level=app["Python"]["logging"])
