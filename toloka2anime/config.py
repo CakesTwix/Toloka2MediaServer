@@ -33,7 +33,7 @@ def update_config_onAdd(config_update, torrent_hash, torrent_guid, codename, epi
 
 def update_config_onUpdate(config_title, registered_date, torrent_hash):
     """Update configuration file when an existing torrent is updated."""
-    titles[config_title]["PublishDate"] = registered_date
-    titles[config_title]["hash"] = torrent_hash
+    titles[config_title.name]["PublishDate"] = registered_date
+    titles[config_title.name]["hash"] = torrent_hash
     with open("toloka2anime/data/titles.ini", "w", encoding="utf-8") as conf:
         titles.write(conf)

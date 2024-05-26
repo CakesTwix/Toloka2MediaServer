@@ -22,14 +22,22 @@
                 "--add", "Arknights: Touin Kiro"
             ],
         },
-        
         {
             "name": "Python Debugger: Module Add Second",
             "type": "debugpy",
             "request": "launch",
             "module": "toloka2anime",
             "args": [
-                "--add", "Про моє переродження в слиз"
+                "--add", "Karasu wa Aruji wo Erabanai"
+            ],
+        },
+        {
+            "name": "Python Debugger: Module Update",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "toloka2anime",
+            "args": [
+                "--codename", "lv2"
             ],
         }
     ]
