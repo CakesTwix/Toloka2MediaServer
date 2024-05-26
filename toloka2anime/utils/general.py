@@ -1,18 +1,16 @@
 """General functions to simplify code"""
 
 def get_numbers(string):
-    """Returns a list of numbers from the string"""
-    raw = "".join((ch if ch in "0123456789" else " ") for ch in string)
-    return list(i for i in raw.split())
+    """Extracts all numbers from a string and returns them as a list."""
+    return [i for i in ''.join((ch if ch.isdigit() else ' ') for ch in string).split()]
 
 def replace_second_part_in_path(path, name):
+    """Replaces the second part of a path with a new name."""
     parts = path.split("/")
     if len(parts) > 1:
         parts[1] = name
     return "/".join(parts)
 
 def get_folder_name_from_path(path):
-    parts = path.split("/")
-    if len(parts) > 1:
-        return parts[0]
-    return ""
+    """Extracts the folder name from a path."""
+    return path.split("/")[0] if "/" in path else ""
