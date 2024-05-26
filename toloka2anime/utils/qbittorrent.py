@@ -2,7 +2,7 @@
 import logging
 
 from toloka2anime.config import titles, toloka, app, selectedClient, update_config_onAdd, update_config_onUpdate
-from toloka2anime.clients.qbit import client
+from toloka2anime.clients.qbittorrent import client
 from toloka2anime.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
 def process_torrent(torrent, config, force=False, new=False, codename=None, config_update=None):
@@ -17,7 +17,7 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
     first_fileName = get_filelist[0].name
 
     if new:
-        episode_number = int(input(f"Enter episode index\n{first_fileName} : {get_numbers(first_filename)}: "))
+        episode_number = int(input(f"Enter episode index\n{first_fileName} : {get_numbers(first_fileName)}: "))
     else:
         episode_number = config['episode_number']
 
