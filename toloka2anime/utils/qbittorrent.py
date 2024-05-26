@@ -44,14 +44,15 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
         episode_number = config['episode_number']
         adjusted_episode_number = config['adjusted_episode_number']
 
+    torrent_name = config['torrent_name'].strip('"')
     for file in get_filelist:
         source_episode = get_numbers(file.name)[episode_number]
         calculated_episode = str(int(source_episode) + adjusted_episode_number).zfill(len(source_episode))
-        new_name = f"{config['torrent_name']} S{config['season_number']}E{calculated_episode} {config['meta']}-{config['release_group']}{config['ext_name']}"
+        new_name = f"{torrent_name} S{config['season_number']}E{calculated_episode} {config['meta']}-{config['release_group']}{config['ext_name']}"
         new_path = replace_second_part_in_path(file.name, new_name)
         client.torrents.rename_file(torrent_hash=torrent_hash, old_path=file.name, new_path=new_path)
 
-    folderName = f"{config['torrent_name']} S{config['season_number']} {config['meta']}[{config['release_group']}]"
+    folderName = f"{torrent_name} S{config['season_number']} {config['meta']}[{config['release_group']}]"
     old_path = get_folder_name_from_path(first_fileName)
     client.torrents.rename_folder(torrent_hash=torrent_hash, old_path=old_path, new_path=folderName)
     client.torrents.rename(torrent_hash=torrent_hash, new_torrent_name=folderName)
@@ -64,7 +65,7 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
 
 def update(title: str, force: bool):
     config_title = titles[title]
-    torrent = toloka.get_torrent(f"{toloka.toloka_url}/{config_title['guid']}")
+    torrent = toloka.get_torrent(f"{toloka.toloka_url}/{config_title['guid'].strip('"')}")
     if config_title["PublishDate"] not in torrent.registered_date:
         logging.info(f"Date is different! : {torrent.name}")
         if not force:

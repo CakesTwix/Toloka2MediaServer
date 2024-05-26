@@ -19,14 +19,14 @@ def update_config_onAdd(config_update, torrent_hash, torrent_guid, codename, epi
         "episode_number": str(episode_number),
         "season_number": str(season_number),
         "ext_name": ext_name,
-        "torrent_name": torrent_name,
+        "torrent_name": f'"{torrent_name}"',
         "download_dir": download_dir,
         "publishdate": date,
         "release_group": release_group,
         "meta": meta,
         "hash": torrent_hash,
         "adjusted_episode_number": adjusted_episode_number,
-        "guid": torrent_guid
+        "guid": f'"{torrent_guid}"'
     }
     with open("toloka2anime/data/titles.ini", "w", encoding="utf-8") as f:
         config_update.write(f)

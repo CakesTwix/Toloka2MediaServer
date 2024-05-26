@@ -19,7 +19,7 @@
             "request": "launch",
             "module": "toloka2anime",
             "args": [
-                "--add", "Фантазія місячного світла"
+                "--add", "Arknights: Touin Kiro"
             ],
         },
         
