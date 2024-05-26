@@ -17,23 +17,48 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
     first_fileName = get_filelist[0].name
 
     if new:
-        episode_number = int(input(f"Enter episode index\n{first_fileName} : {get_numbers(first_fileName)}: "))
+        # Extract numbers from the filename
+        numbers = get_numbers(first_fileName)
+
+        # Display the numbers to the user, starting count from 1
+        print(f"{first_fileName}\nEnter the order number of the episode index from the list below:")
+        for index, number in enumerate(numbers, start=1):
+            print(f"{index}: {number}")
+
+        # Get user input and adjust for 0-based index
+        episode_order = int(input("Your choice (use order number): "))
+        episode_index = episode_order - 1  # Convert to 0-based index
+        episode_number = episode_index
+        source_episode_number = numbers[episode_index]
+        print(f"You selected episode number: {numbers[episode_index]}")
+        
+        adjustment_input = input("Enter the adjustment value (e.g., '+9' or '-3', default is 0): ").strip()
+        adjusted_episode_number = int(adjustment_input) if adjustment_input else 0
+        if adjusted_episode_number != 0:
+            # Calculate new episode number considering adjustment and preserve leading zeros if any
+            adjusted_episode = str(int(source_episode_number) + adjusted_episode_number).zfill(len(source_episode_number))
+        else:
+            adjusted_episode = source_episode_number
+        print(f"Adjusted episode number: {adjusted_episode}")
     else:
         episode_number = config['episode_number']
+        adjusted_episode_number = config['adjusted_episode_number']
 
     for file in get_filelist:
-        new_name = f"{config['torrent_name']} S{config['season_number']}E{get_numbers(file.name)[episode_number]} {config['meta']}-{config['release_group']}{config['ext_name']}"
+        source_episode = get_numbers(file.name)[episode_number]
+        calculated_episode = str(int(source_episode) + adjusted_episode_number).zfill(len(source_episode))
+        new_name = f"{config['torrent_name']} S{config['season_number']}E{calculated_episode} {config['meta']}-{config['release_group']}{config['ext_name']}"
         new_path = replace_second_part_in_path(file.name, new_name)
         client.torrents.rename_file(torrent_hash=torrent_hash, old_path=file.name, new_path=new_path)
 
     folderName = f"{config['torrent_name']} S{config['season_number']} {config['meta']}[{config['release_group']}]"
     old_path = get_folder_name_from_path(first_fileName)
     client.torrents.rename_folder(torrent_hash=torrent_hash, old_path=old_path, new_path=folderName)
-    client.torrents.rename(torrent_hash=torrent_hash, new_torrent_name=config['torrent_name'])
+    client.torrents.rename(torrent_hash=torrent_hash, new_torrent_name=folderName)
     client.torrents.resume(torrent_hashes=torrent_hash)
 
     if new:
-        update_config_onAdd(config_update, torrent_hash, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'])
+        update_config_onAdd(config_update, torrent_hash, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'], adjusted_episode_number)
     else:
         update_config_onUpdate(config, torrent.registered_date, torrent_hash)
 
