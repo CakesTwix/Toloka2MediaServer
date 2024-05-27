@@ -50,10 +50,12 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
 
     torrent_name = config['torrent_name'].strip('"')
     for file in get_filelist:
+        if '.pad' in file.name or config['ext_name'] not in file.name:
+            continue
         source_episode = get_numbers(file.name)[episode_number]
         calculated_episode = str(int(source_episode) + adjusted_episode_number).zfill(len(source_episode))
         new_name = f"{torrent_name} S{config['season_number']}E{calculated_episode} {config['meta']}-{config['release_group']}{config['ext_name']}"
-        new_path = replace_second_part_in_path(file.name, new_name)
+        new_path = new_name #replace_second_part_in_path(file.name, new_name) 
         
         client.rename_torrent_path(torrent_id=torrent_hash, location=file.name, name=new_path)
 
@@ -61,16 +63,22 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
     old_path = get_folder_name_from_path(first_fileName)
     
     client.rename_torrent_path(torrent_hash, old_path, folderName)
-    #Torrent Rename not present in transmission api.
-    #client.torrents.rename(torrent_hash=torrent_hash, new_torrent_name=folderName)
+    #Torrent Rename and folder rename same action in transmission api.
     
     if new:
         client.start_torrent(torrent_hash)
+        
+        if selectedClient == 'Transmission':
+            torrent_hash = str(torrent_hash)
         update_config_onAdd(config_update, torrent_hash, torrent.url, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'], adjusted_episode_number)
     else:
         client.verify_torrent(torrent_hash)
         client.start_torrent(torrent_hash)
+        
+        if selectedClient == 'Transmission':
+            torrent_hash = str(torrent_hash)
         update_config_onUpdate(config, torrent.registered_date, torrent_hash)
+
     
 def update(title: str, force: bool):
     config_title = titles[title]
