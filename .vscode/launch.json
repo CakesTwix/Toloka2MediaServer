@@ -37,8 +37,14 @@
             "request": "launch",
             "module": "toloka2MediaServer",
             "args": [
-                "--codename", "lv2"
+                "--codename", "ArknightsTouin"
             ],
+        },
+        {
+            "name": "Python Debugger: Module Update All",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "toloka2MediaServer",
         }
     ]
 }
