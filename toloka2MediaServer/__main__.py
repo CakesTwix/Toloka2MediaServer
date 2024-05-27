@@ -3,6 +3,8 @@ import argparse
 import configparser
 import logging
 import sys
+import re
+
 from toloka2MediaServer.config import app, titles, toloka, selectedClient
 
 # Dynamic client import based on selected client
@@ -41,18 +43,28 @@ if args.add:
         print(f"{index} : {item.name} - {item.url}")
 
     torrent = torrent[int(input("Enter the index of the desired torrent: "))]
-    codename = input("Enter the codename: ")
+    
+    match = re.search(r'[\/|]([^\/|\(]+)', torrent.name)
+    if match:
+        suggested_name = match.group(1).strip()
+    else:
+        suggested_name = "No match found"
+    
+    codename = input(f"Default:{suggested_name.replace(" ", "")}. Enter the codename: ") or suggested_name.replace(" ", "")
     config_update = configparser.RawConfigParser()
     config_update.add_section(codename)
     config_update.set(codename, "Guid", torrent.url)
 
     # Collect additional data
     season_number = input("Enter the season number: ")
+    season_number = season_number.zfill(2)
     ext_name = input('Enter the file extension, e.g., ".mkv": ') or ".mkv"
-    download_dir = input("Enter the download directory path: ")
-    torrent_name = input("Enter the directory name for the downloaded files: ")
+    default_download_dir = app["Toloka"]["default_download_dir"]
+    download_dir = input(f"Default: {default_download_dir}:. Enter the download directory path.  ") or default_download_dir
+    torrent_name = input(f"Default: {suggested_name}. Enter the directory name for the downloaded files: ") or suggested_name
     release_group = input("Enter the release group name, or it will default to the torrent's author: ") or torrent.author
-    meta = input("Enter additional metadata tags, or it will default to [WEBRip-1080p][UK+JA]: ") or "[WEBRip-1080p][UK+JA]"
+    default_meta = app["Toloka"]["default_meta"]
+    meta = input(f"Default: {default_meta}. Enter additional metadata tags: ") or default_meta
 
     add(torrent, codename, config_update, season_number, ext_name, download_dir, torrent_name, release_group, meta)
     sys.exit()
