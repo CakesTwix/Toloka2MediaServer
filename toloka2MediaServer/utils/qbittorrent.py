@@ -1,5 +1,6 @@
 """Functions for working with torrents"""
 import logging
+import time
 
 from toloka2MediaServer.config import titles, toloka, app, selectedClient, update_config_onAdd, update_config_onUpdate
 from toloka2MediaServer.clients.qbittorrent import client
@@ -11,12 +12,17 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
         
     category = app[selectedClient]["category"]
     tag = app[selectedClient]["tag"]
-     
+    
+    #qbit api will not return hash of added torrent, so we are not able to make easy search request afterwards 
     client.torrents.add(torrent_files=tolokaTorrentFile, category=category, tags=[tag], is_paused=True)
-    added_torrent = client.torrents_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on")
-    torrent_hash = added_torrent[0]['hash']
-    added_torrent = client.torrents.properties(torrent_hash)
+    # Small timeout, as looks like sometimes it take a bit more time for qBit to add torrent(based on torrent size?)
+    time.sleep(2)
+    filtered_torrents = client.torrents_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True)
+    added_torrent = filtered_torrents[0]
     logging.debug(added_torrent)
+    
+    torrent_hash = added_torrent.info.hash
+    
     get_filelist = client.torrents.files(torrent_hash)
     first_fileName = get_filelist[0].name
 
@@ -65,10 +71,14 @@ def process_torrent(torrent, config, force=False, new=False, codename=None, conf
         client.torrents.resume(torrent_hashes=torrent_hash)
         update_config_onAdd(config_update, torrent_hash, torrent.url, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'], adjusted_episode_number)
     else:
-        client.torrents.recheck(torrent_hashes=torrent_hash)
+        #recheck not working? api bug?
+        #client.torrents.recheck(torrent_hashes=torrent_hash) same added_torrent.recheck() do nothing
+        added_torrent.recheck()
         client.torrents.resume(torrent_hashes=torrent_hash)
         update_config_onUpdate(config, torrent.registered_date, torrent_hash)
-
+        
+    #qbt_client.auth_log_out() logout from qbit session TBD
+    
 def update(title: str, force: bool):
     config_title = titles[title]
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{config_title['guid'].strip('"')}")
