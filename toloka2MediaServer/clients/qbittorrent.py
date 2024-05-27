@@ -1,7 +1,7 @@
 import logging
 import qbittorrentapi
 
-from toloka2anime.config import app, selectedClient
+from toloka2MediaServer.config import app, selectedClient
 
 # Set Logging
 logging.basicConfig(level=app["Python"]["logging"])

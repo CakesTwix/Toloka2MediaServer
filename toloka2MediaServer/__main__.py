@@ -3,16 +3,16 @@ import argparse
 import configparser
 import logging
 import sys
-from toloka2anime.config import app, titles, toloka, selectedClient
+from toloka2MediaServer.config import app, titles, toloka, selectedClient
 
 # Dynamic client import based on selected client
-client_module = f"toloka2anime.clients.{selectedClient.lower()}"
-utils_module = f"toloka2anime.utils.{selectedClient.lower()}"
+client_module = f"toloka2MediaServer.clients.{selectedClient.lower()}"
+utils_module = f"toloka2MediaServer.utils.{selectedClient.lower()}"
 client = __import__(client_module, fromlist=['client']).client
 update = __import__(utils_module, fromlist=['update']).update
 add = __import__(utils_module, fromlist=['add']).add
 
-from toloka2anime.utils.general import get_numbers
+from toloka2MediaServer.utils.general import get_numbers
 
 # Setup argparse
 parser = argparse.ArgumentParser(description="Console utility for updating torrents from Toloka.")

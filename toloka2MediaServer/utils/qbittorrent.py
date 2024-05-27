@@ -1,9 +1,9 @@
 """Functions for working with torrents"""
 import logging
 
-from toloka2anime.config import titles, toloka, app, selectedClient, update_config_onAdd, update_config_onUpdate
-from toloka2anime.clients.qbittorrent import client
-from toloka2anime.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
+from toloka2MediaServer.config import titles, toloka, app, selectedClient, update_config_onAdd, update_config_onUpdate
+from toloka2MediaServer.clients.qbittorrent import client
+from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
 def process_torrent(torrent, config, force=False, new=False, codename=None, config_update=None):
     """ Common logic to process torrents, either updating or adding new ones """

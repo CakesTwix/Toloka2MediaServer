@@ -1,9 +1,9 @@
 """Functions for working with torrents"""
 import logging
 
-from toloka2anime.config import titles, toloka
-from toloka2anime.clients.transmission import client
-from toloka2anime.utils.general import get_numbers
+from toloka2MediaServer.config import titles, toloka
+from toloka2MediaServer.clients.transmission import client
+from toloka2MediaServer.utils.general import get_numbers
 
 
 def update(title: str, force: bool):

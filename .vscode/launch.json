@@ -8,7 +8,7 @@
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "toloka2anime",
+            "module": "toloka2MediaServer",
             "args": [
                 "--help"
             ],
@@ -17,7 +17,7 @@
             "name": "Python Debugger: Module Add",
             "type": "debugpy",
             "request": "launch",
-            "module": "toloka2anime",
+            "module": "toloka2MediaServer",
             "args": [
                 "--add", "Arknights: Touin Kiro"
             ],
@@ -26,7 +26,7 @@
             "name": "Python Debugger: Module Add Second",
             "type": "debugpy",
             "request": "launch",
-            "module": "toloka2anime",
+            "module": "toloka2MediaServer",
             "args": [
                 "--add", "Karasu wa Aruji wo Erabanai"
             ],
@@ -35,7 +35,7 @@
             "name": "Python Debugger: Module Update",
             "type": "debugpy",
             "request": "launch",
-            "module": "toloka2anime",
+            "module": "toloka2MediaServer",
             "args": [
                 "--codename", "lv2"
             ],
