@@ -1,104 +1,93 @@
 """Functions for working with torrents"""
 import logging
+import time
 
-from toloka2MediaServer.config import titles, toloka
+from toloka2MediaServer.config import titles, toloka, app, selectedClient, update_config_onAdd, update_config_onUpdate
 from toloka2MediaServer.clients.transmission import client
-from toloka2MediaServer.utils.general import get_numbers
+from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
+def process_torrent(torrent, config, force=False, new=False, codename=None, config_update=None):
+    """ Common logic to process torrents, either updating or adding new ones """
+    tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link if new else torrent.torrent_url}")
+        
+    category = app[selectedClient]["category"]
+    tag = app[selectedClient]["tag"]
+    #category=category, tags=[tag]
+    torrent_hash = client.add_torrent(tolokaTorrentFile, download_dir=config["download_dir"], labels=[category,tag], paused=True).id
+    added_torrent = client.get_torrent(torrent_hash)
+    torrent_hash = added_torrent.id
+    
+    get_filelist = added_torrent.get_files()
+    first_fileName = get_filelist[0].name 
 
-def update(title: str, force: bool):
-    # All ok, do magic ^_^
-    # Search Anime by "search query" and check Guid
-    torrent_toloka = toloka.get_torrent(f"{toloka.toloka_url}/{titles[title]['guid']}")
+    if new:
+        # Extract numbers from the filename
+        numbers = get_numbers(first_fileName)
 
-    # Check if have updates by date
-    if titles[title]["PublishDate"] in torrent_toloka.registered_date:
-        logging.info(f"Same date! : {torrent_toloka.name}")
-        return
+        # Display the numbers to the user, starting count from 1
+        print(f"{first_fileName}\nEnter the order number of the episode index from the list below:")
+        for index, number in enumerate(numbers, start=1):
+            print(f"{index}: {number}")
+
+        # Get user input and adjust for 0-based index
+        episode_order = int(input("Your choice (use order number): "))
+        episode_index = episode_order - 1  # Convert to 0-based index
+        episode_number = episode_index
+        source_episode_number = numbers[episode_index]
+        print(f"You selected episode number: {numbers[episode_index]}")
+        
+        adjustment_input = input("Enter the adjustment value (e.g., '+9' or '-3', default is 0): ").strip()
+        adjusted_episode_number = int(adjustment_input) if adjustment_input else 0
+        if adjusted_episode_number != 0:
+            # Calculate new episode number considering adjustment and preserve leading zeros if any
+            adjusted_episode = str(int(source_episode_number) + adjusted_episode_number).zfill(len(source_episode_number))
+        else:
+            adjusted_episode = source_episode_number
+        print(f"Adjusted episode number: {adjusted_episode}")
     else:
-        # We have some changes! Do redownload torrent
-        logging.info(f"Date is different! : {torrent_toloka.name}")
+        episode_number = int(config['episode_number'])
+        adjusted_episode_number = int(config['adjusted_episode_number'])
 
-    # Get all torrents and get one by name
-    for torrent in client.get_torrents():
-        if titles[title]["torrent_name"] == torrent.name or force:
-            # Remove old torrent
-            if force != True:
-                client.remove_torrent(torrent.id)
-                
-            # Download torrent file
-            new_torrent = client.get_torrent(
-                client.add_torrent(
-                    toloka.download_torrent(f"{toloka.toloka_url}/{torrent_toloka.torrent_url}"),
-                    download_dir=titles[title]["download_dir"],
-                ).id
-            )
+    torrent_name = config['torrent_name'].strip('"')
+    for file in get_filelist:
+        source_episode = get_numbers(file.name)[episode_number]
+        calculated_episode = str(int(source_episode) + adjusted_episode_number).zfill(len(source_episode))
+        new_name = f"{torrent_name} S{config['season_number']}E{calculated_episode} {config['meta']}-{config['release_group']}{config['ext_name']}"
+        new_path = replace_second_part_in_path(file.name, new_name)
+        
+        client.rename_torrent_path(torrent_id=torrent_hash, location=file.name, name=new_path)
 
-            # Rename episodes
-            if titles[title]["episode_number"]:
-                # New torrent Files
-                for name in new_torrent.get_files():
-                    # Episode S1E01.mkv
-                    new_name = f"{titles[title]['torrent_name']} S{titles[title]['season_number']}E{get_numbers(name.name)[int(titles[title]['episode_number'])]}{titles[title]['ext_name']}".replace(" ", ".")
-                    client.rename_torrent_path(
-                        new_torrent.id, name.name, new_name
-                    )
+    folderName = f"{torrent_name} S{config['season_number']} {config['meta']}[{config['release_group']}]"
+    old_path = get_folder_name_from_path(first_fileName)
+    
+    client.rename_torrent_path(torrent_hash, old_path, folderName)
+    #Torrent Rename not present in transmission api.
+    #client.torrents.rename(torrent_hash=torrent_hash, new_torrent_name=folderName)
+    
+    if new:
+        client.start_torrent(torrent_hash)
+        update_config_onAdd(config_update, torrent_hash, torrent.url, codename, episode_number, config['season_number'], config['ext_name'], config['torrent_name'], config['download_dir'], torrent.date, config['release_group'], config['meta'], adjusted_episode_number)
+    else:
+        client.verify_torrent(torrent_hash)
+        client.start_torrent(torrent_hash)
+        update_config_onUpdate(config, torrent.registered_date, torrent_hash)
+    
+def update(title: str, force: bool):
+    config_title = titles[title]
+    torrent = toloka.get_torrent(f"{toloka.toloka_url}/{config_title['guid'].strip('"')}")
+    if config_title["PublishDate"] not in torrent.registered_date:
+        logging.info(f"Date is different! : {torrent.name}")
+        if not force:
+            client.remove_torrent(config_title["hash"])
+        process_torrent(torrent, config_title, force=force)
 
-            # Rename Torrent
-            client.rename_torrent_path(
-                new_torrent.id,
-                new_torrent.name,
-                titles[title]["torrent_name"],
-            )
-
-            # Check old files
-            client.verify_torrent(new_torrent.id)
-            client.start_torrent(new_torrent.id)
-
-            # Update date and write
-            titles[title]["PublishDate"] = torrent_toloka.registered_date
-            with open("titles.ini", "w", encoding="utf-8") as conf:
-                titles.write(conf)
-
-            # No need check next torrents
-            break
-
-# Add new anime to titles.ini
-def add(torrent, codename, config_update, season_number, ext_name, download_dir, torrent_name):
-    new_torrent = client.get_torrent(
-        client.add_torrent(
-            toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link}"),
-            download_dir=download_dir,
-        ).id
-    )
-
-    episode_number = int(
-        input(
-            f"Введіть індекс серії\n{new_torrent.get_files()[0].name} : {get_numbers(new_torrent.get_files()[0].name)}: "
-        )
-    )
-
-    # Write data
-    config_update.set(codename, "episode_number", episode_number)
-    config_update.set(codename, "season_number", season_number)
-    config_update.set(codename, "ext_name", ext_name)
-    config_update.set(codename, "torrent_name", torrent_name)
-    config_update.set(codename, "download_dir", download_dir)
-    config_update.set(codename, "publishdate", torrent.date)
-
-    for name in new_torrent.get_files():
-        # Episode S1E01.mkv
-        new_name = f"{torrent_name} S{season_number}E{get_numbers(name.name)[episode_number]}{ext_name}".replace(" ", ".")
-        client.rename_torrent_path(new_torrent.id, name.name, new_name)
-
-    # Rename Torrent
-    client.rename_torrent_path(
-        new_torrent.id, new_torrent.name, torrent_name
-    )
-
-    # Start
-    client.start_torrent(new_torrent.id)
-
-    # Write to config
-    with open("titles.ini", "a", encoding="utf-8") as f:
-        config_update.write(f)
+def add(torrent, codename, config_update, season_number, ext_name, download_dir, torrent_name, release_group, meta):
+    config = {
+        "season_number": season_number,
+        "ext_name": ext_name,
+        "torrent_name": torrent_name,
+        "release_group": release_group,
+        "meta": meta,
+        "download_dir": download_dir
+    }
+    process_torrent(torrent, config, new=True, codename=codename, config_update=config_update)

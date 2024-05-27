@@ -3,33 +3,27 @@ import sys
 
 from transmission_rpc import Client
 from transmission_rpc.error import TransmissionConnectError
-from transmission_rpc.utils import format_size
 
-from toloka2MediaServer.config import app
+from toloka2MediaServer.config import app, selectedClient
 
 # Set Logging
 logging.basicConfig(level=app["Python"]["logging"])
 
-# Init
-try:
-    TransmissionClient = Client(
-        host=app["Transmission"]["host"],
-        port=app["Transmission"]["port"],
-        username=app["Transmission"]["username"],
-        password=app["Transmission"]["password"],
-        path=app["Transmission"]["rpc"],
-        protocol=app["Transmission"]["protocol"],
-    )
-    # For init information
-    downloaded = format_size(
-        TransmissionClient.session_stats().current_stats.downloaded_bytes
-    )
-    uploaded = format_size(
-        TransmissionClient.session_stats().current_stats.uploaded_bytes
-    )
+def initialize_client():
+    """Initialize and log in to the Transmission client."""
+    try:
+        client = Client(
+            host=app[selectedClient]["host"],
+            port=app[selectedClient]["port"],
+            username=app[selectedClient]["username"],
+            password=app[selectedClient]["password"],
+            path=app[selectedClient]["rpc"],
+            protocol=app[selectedClient]["protocol"],
+        )
+        logging.info(f"Connected to: {selectedClient}")
+    except TransmissionConnectError:
+        logging.critical(f"{selectedClient} wrong connection details")
+        raise
+    return client
 
-    logging.info(f"Downloaded: {downloaded[0]} {downloaded[1]}")
-    logging.info(f"Uploaded: {uploaded[0]} {uploaded[1]}")
-except TransmissionConnectError:
-    logging.critical("Not connection!")
-    sys.exit()
+client = initialize_client()
