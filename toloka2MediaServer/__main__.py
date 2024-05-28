@@ -118,10 +118,12 @@ if args.add:
 
 # Update specific or all anime
 if args.codename:
-    update(args.codename, args.force)
+    title_from_config = config_to_title(titles, args.codename)
+    update(title_from_config, args.force)
 else:
-    for title in titles.sections():
-        #just to be sure, that we are not ddosing toloka, wait for 10s before each call.
+    for config in titles.sections():
+        #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
+        #could be changed to some configuration, as not so required for small list
         time.sleep(10)
-        title = config_to_title(titles, title)
-        update(title, args.force)
+        title_from_config = config_to_title(titles, config)
+        update(title_from_config, args.force)

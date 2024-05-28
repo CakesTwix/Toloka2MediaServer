@@ -23,13 +23,14 @@ def process_torrent(torrent, title: Title, new=False):
     logging.debug(added_torrent)
     
     title.hash = added_torrent.info.hash
-    title.guid = torrent.url
-    title.publish_date = torrent.date
+    title.publish_date = torrent.date if new else torrent.registered_date
     
     get_filelist = client.torrents.files(title.hash)
     first_fileName = get_filelist[0].name
 
     if new:
+        
+        title.guid = torrent.url
         # Extract numbers from the filename
         numbers = get_numbers(first_fileName)
         
