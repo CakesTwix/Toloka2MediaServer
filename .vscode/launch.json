@@ -19,7 +19,7 @@
             "request": "launch",
             "module": "toloka2MediaServer",
             "args": [
-                "--add", "Arknights: Touin Kiro"
+                "--add", "Kimetsu no Yaiba: Hashira Geiko-hen"
             ],
         },
         {
@@ -30,6 +30,25 @@
             "args": [
                 "--add", "Karasu wa Aruji wo Erabanai"
             ],
+        },
+        {
+            "name": "Python Debugger: Add by URL",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "toloka2MediaServer",
+            "args": [
+                "--add",
+                "--url",
+                "https://toloka.to/t678861",
+                "--season",
+                "05",
+                "--index",
+                "3",
+                "--correction",
+                "0",
+                "--title",
+                "Kimetsu no Yaiba: Hashira Geiko-hen (2024)"
+            ]
         },
         {
             "name": "Python Debugger: Module Update",

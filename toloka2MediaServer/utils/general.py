@@ -1,4 +1,5 @@
 """General functions to simplify code"""
+import re
 
 def get_numbers(string):
     """Extracts all numbers from a string and returns them as a list."""
@@ -14,3 +15,17 @@ def replace_second_part_in_path(path, name):
 def get_folder_name_from_path(path):
     """Extracts the folder name from a path."""
     return path.split("/")[0] if "/" in path else ""
+
+def extract_torrent_details(torrent_name):
+    matched_name = re.search(r'[\/|]([^\/|\(]+)', torrent_name)
+    matched_year = re.search(r'\((\d{4})\)', torrent_name)
+    
+    if matched_name:
+        suggested_name = f"{matched_name.group(1)} ({matched_year.group(1)})".strip()
+        suggested_name = re.sub(r'\s+', ' ', suggested_name)
+        suggested_codename = re.sub(r'\W+', '', matched_name.group(1)).strip()
+    else:
+        suggested_name = "No match found"
+        suggested_codename = "No match found"
+    
+    return suggested_name, suggested_codename
