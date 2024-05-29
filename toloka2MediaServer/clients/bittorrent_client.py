@@ -3,12 +3,12 @@ from abc import ABC, abstractmethod
 
 class BittorrentClient(ABC):
     @abstractmethod
-    def add_torrent(self, torrents, category, tags, is_paused):
+    def add_torrent(self, torrents, category, tags, is_paused, download_dir):
         """Add a new torrent."""
         pass
 
     @abstractmethod
-    def get_torrent_info(self, status_filter, category, tags, sort, reverse):
+    def get_torrent_info(self, status_filter, category, tags, sort, reverse,torrent_hash):
         """Retrieve information about torrents."""
         pass
 

@@ -12,23 +12,28 @@ logger = logging.getLogger(__name__)
 
 def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
+    title.publish_date = torrent.date if new else torrent.registered_date
+    
     tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link if new else torrent.torrent_url}")
         
     category = app[selectedClient]["category"]
     tag = app[selectedClient]["tag"]
     
-    #qbit api will not return hash of added torrent, so we are not able to make easy search request afterwards 
-    client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True)
-    # Small timeout, as looks like sometimes it take a bit more time for qBit to add torrent(based on torrent size?)
+    add_torrent_response = client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True, download_dir=title.download_dir)
     time.sleep(2)
-    filtered_torrents = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True)
-    added_torrent = filtered_torrents[0]
+    if selectedClient == "qbittorrent":
+        filtered_torrents = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True)
+        added_torrent = filtered_torrents[0]
+        title.hash = added_torrent.info.hash
+        get_filelist = client.get_files(title.hash)
+
+    else:
+        added_torrent = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True, torrent_hash=add_torrent_response)
+        title.hash = added_torrent.id
+        get_filelist = added_torrent.get_files()
+        
     logger.debug(added_torrent)
     
-    title.hash = added_torrent.info.hash
-    title.publish_date = torrent.date if new else torrent.registered_date
-    
-    get_filelist = client.get_files(title.hash)
     first_fileName = get_filelist[0].name
 
     if new:
@@ -63,10 +68,16 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
             title.adjusted_episode_number = adjusted_episode_number
     
     for file in get_filelist:
+        if title.ext_name not in file.name:
+            continue
+        
         source_episode = get_numbers(file.name)[title.episode_index]
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
         new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta}-{title.release_group}{title.ext_name}"
-        new_path = replace_second_part_in_path(file.name, new_name)
+        if selectedClient == "qbittorrent":
+            new_path = replace_second_part_in_path(file.name, new_name)
+        else:
+            new_path = new_name
         client.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
 
     folderName = f"{title.torrent_name} S{title.season_number} {title.meta}[{title.release_group}]"

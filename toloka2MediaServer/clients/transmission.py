@@ -7,7 +7,7 @@ from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
 from toloka2MediaServer.config import app, selectedClient
 
 # Set Logging
-logging.basicConfig(level=app["Python"]["logging"])
+logger = logging.getLogger(__name__)
 class TransmissionClient(BittorrentClient):
     def __init__(self):
         """Initialize and log in to the Transmission client."""
@@ -20,29 +20,29 @@ class TransmissionClient(BittorrentClient):
                 path=app[selectedClient]["rpc"],
                 protocol=app[selectedClient]["protocol"],
             )
-            logging.info(f"Connected to: {selectedClient}")
+            logger.info(f"Connected to: {selectedClient}")
         except TransmissionConnectError:
-            logging.critical(f"{selectedClient} wrong connection details")
+            logger.critical(f"{selectedClient} wrong connection details")
             raise
 
-    def add_torrent(self, torrent_file, category, tags, is_paused):
-        return self.api_client.add_torrent(filename=torrent_file, paused=is_paused)
+    def add_torrent(self, torrents, category, tags, is_paused, download_dir):
+        labels=[category,tags]
+        return self.api_client.add_torrent(torrent=torrents, paused=is_paused, labels=labels, download_dir=download_dir).id
 
-    def get_torrent_info(self, status_filter, category, tags, sort, reverse):
-        torrents = self.api_client.get_torrents()
-        return [t for t in torrents if t.status == status_filter and t.category == category]
+    def get_torrent_info(self, status_filter, category, tags, sort, reverse, torrent_hash):
+        return self.api_client.get_torrent(torrent_hash)
 
     def get_files(self, torrent_hash):
         return self.api_client.get_files(torrent_hash)
 
     def rename_file(self, torrent_hash, old_path, new_path):
-        return self.api_client.rename_file(torrent_hash, old_path, new_path)
+        return self.api_client.rename_torrent_path(torrent_hash, old_path, new_path)
 
     def rename_folder(self, torrent_hash, old_path, new_path):
-        return self.api_client.rename_folder(torrent_hash, old_path, new_path)
+        return self.api_client.rename_torrent_path(torrent_hash, old_path, new_path)
 
     def rename_torrent(self, torrent_hash, new_torrent_name):
-        return self.api_client.rename_torrent(torrent_hash, new_torrent_name)
+        return True
 
     def resume_torrent(self, torrent_hashes):
         return self.api_client.start_torrent(torrent_hashes)
@@ -52,3 +52,6 @@ class TransmissionClient(BittorrentClient):
 
     def recheck_torrent(self, torrent_hashes):
         return self.api_client.verify_torrent(torrent_hashes)
+    
+    def end_session(self):
+        self.api_client = None
