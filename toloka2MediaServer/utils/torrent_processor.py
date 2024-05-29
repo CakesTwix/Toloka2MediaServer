@@ -2,12 +2,13 @@
 import logging
 import time
 
+from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
+
 from toloka2MediaServer.config import toloka, app, selectedClient, update_config
-from toloka2MediaServer.clients.qbittorrent import client
 from toloka2MediaServer.utils.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
-def process_torrent(torrent, title: Title, new=False):
+def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
     tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link if new else torrent.torrent_url}")
         
@@ -83,7 +84,7 @@ def process_torrent(torrent, title: Title, new=False):
     update_config(config, title.code_name)    
     #qbt_client.auth_log_out() logout from qbit session TBD
     
-def update(title: Title, force: bool):
+def update(client: BittorrentClient, title: Title, force: bool):
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{title.guid.strip('"')}")
     if title.publish_date not in torrent.registered_date:
         logging.info(f"Date is different! : {torrent.name}")
@@ -93,6 +94,6 @@ def update(title: Title, force: bool):
     else:
         logging.info(f"Update not required! : {torrent.name}")
 
-def add(torrent, title: Title):
+def add(client: BittorrentClient, torrent, title: Title):
 
-    process_torrent(torrent, title=title, new=True)
+    process_torrent(client, torrent, title=title, new=True)

@@ -5,19 +5,19 @@ import sys
 import re
 import time
 
-from toloka2MediaServer.config import app, titles, toloka, selectedClient
 # Configure logging
 logging.basicConfig(level=app["Python"]["logging"])
 
-# Dynamic client import based on selected client
-client_module = f"toloka2MediaServer.clients.{selectedClient.lower()}"
-utils_module = f"toloka2MediaServer.utils.{selectedClient.lower()}"
-client = __import__(client_module, fromlist=['client']).client
-update = __import__(utils_module, fromlist=['update']).update
-add = __import__(utils_module, fromlist=['add']).add
-
+from toloka2MediaServer.config import app, titles, toloka, selectedClient
+from toloka2MediaServer.utils.torrent_processor import add, update
 from toloka2MediaServer.utils.title import Title, config_to_title
 from toloka2MediaServer.utils.general import extract_torrent_details, get_numbers
+
+# Dynamic client import based on selected client
+client_module_name = f"toloka2MediaServer.clients.{selectedClient.lower()}"
+client_class_name = "BittorrentClient"  # Assuming all client classes are named 'BittorrentClient'
+BittorrentClient = __import__(client_module_name, fromlist=[client_class_name])
+client = getattr(BittorrentClient, client_class_name)
 
 # Setup argparse
 parser = argparse.ArgumentParser(description="Console utility for updating torrents from Toloka.")
