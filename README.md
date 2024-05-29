@@ -1,14 +1,10 @@
-<p align="center">
-	<img src="assets/logo.png"/><br>
-</p>
-
 # Toloka2MediaServer [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
 <p align="center">
 <img src="https://img.shields.io/github/languages/code-size/CakesTwix/Toloka2Tranmission?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black"/>
 <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54"/>
-<img src="https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white"/><br><br>
+<img src="https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white"/></p>
 
 ## English Section
 The primary goal of this project is to address naming issues for Ukrainian localization studios that create regional naming conventions for shows/anime. Additionally, Toloka follows the rule that ongoing series/anime should be in a single release. As a result of these actions, none of the modern *arr suites or media servers are capable of parsing files and automating the download process effectively.
@@ -48,6 +44,14 @@ The Girl I Like Forgot Her Glasses (S1)
 	```bash
 	python -m toloka2MediaServer --help
 	```
+* **Додати новий торрент вручну**
+	```bash
+	python -m toloka2MediaServer -a "Назва торрента роздачі"
+	```
+* **Додати новий торрент автоматично**
+	```bash
+	python -m toloka2MediaServer --add --url https://toloka.to/t675888 --season 02 --index 2 --correction 0 --title "Tsukimichi -Moonlit Fantasy-"
+	```
 * **Оновити всі торренти**
 	```bash
 	python -m toloka2MediaServer
@@ -86,7 +90,7 @@ crontab -e
 # CRITICAL
 logging = INFO
 
-[Transmission]
+[transmission]
 username = Імя користувача
 password = Пароль
 port = 9091
@@ -94,8 +98,9 @@ host = localhost
 protocol = http
 rpc = /transmission/rpc
 category = sonarr
+tag = tolokaAnime
 
-[qBittorrent]
+[qbittorrent]
 username = Імя користувача
 password = Пароль
 port = 8080
@@ -107,36 +112,37 @@ category = sonarr
 [Toloka]
 username = 
 password = 
-client = qBittorrent
+client = qbittorrent
 default_download_dir = /media/HDD/Jellyfin/Anime
+default_meta = [WEBRip-1080p][UK+JA][Ukr Sub]
 ```
 * ### titles.ini
 ```ini
 [ArknightsTouin]
-episode_number = 2
+episode_index = 2
 season_number = 02
 ext_name = .mkv
 torrent_name = "Arknights: Touin Kiro (2022)"
-download_dir = 
-publishdate = 2024-05-23
+download_dir = /media/HDD/Jellyfin/Anime
+publishdate = 24-05-23 21:32
 release_group = InariDuB
 meta = [WEBRip-1080p][UK+JA][Ukr Sub]
 hash = 97e3023362ebb41263f3266ac3a72cc56eda0885
 adjusted_episode_number = -8
-guid = "t678205"
-	
+guid = t678205
+
 [Tsukimichi]
-episode_number = 2
+episode_index = 2
 season_number = 02
 ext_name = .mkv
 torrent_name = "Tsukimichi -Moonlit Fantasy- (2021)"
 download_dir = /media/HDD/Jellyfin/Anime
-publishdate = 2024-05-21
+publishdate = 24-05-28 17:16
 release_group = FanVoxUA
 meta = [WEBRip-1080p][UK][Ukr Sub]
 hash = 8bcb2b32b4885e6c4a03f909486a03f26a4c9a62
 adjusted_episode_number = 0
-guid = "t675888"
+guid = t675888
 ```
 	
 ### Конфігурація епізодів аніме
@@ -144,7 +150,7 @@ guid = "t675888"
 
 | Властивість            | ArknightsTouin                                      | Tsukimichi                                     | Визначення                                                           |
 |------------------------|-----------------------------------------------------|------------------------------------------------|----------------------------------------------------------------------|
-| episode_number         | 2                                                   | 2                                              | Індекс, що вказує номер епізоду(звідки брати номер епізоду)                                      |
+| episode_index         | 2                                                   | 2                                              | Індекс, що вказує номер епізоду(звідки брати номер епізоду)                                      |
 | season_number          | 02                                                  | 02                                             | Номер сезону                                            |
 | ext_name               | .mkv                                                | .mkv                                           | Формат файлу                                                        |
 | torrent_name           | "Arknights: Touin Kiro (2022)"                     | "Tsukimichi -Moonlit Fantasy- (2021)"          | Базове ім'я для генерації назви торрента, тек та файлів             |
@@ -152,9 +158,9 @@ guid = "t675888"
 | publishdate            | 2024-05-23                                          | 2024-05-21                                     | Системне значення для визначення оновлень торренту                   |
 | release_group          | InariDuB                                            | FanVoxUA                                       | Реліз група або автор роздачі                                       |
 | meta                   | [WEBRip-1080p][UK+JA][Ukr Sub]                     | [WEBRip-1080p][UK][Ukr Sub]                     | Додаткові метадані, які будуть додані у назву                         |
-| hash                   | 97e...0885          | 8b...a62      | Системне значення - ID торрент файлу для майбутнього пошуку           |
+| hash                   | 97e...0885          | 12      | Системне значення - ID торрент файлу для майбутнього пошуку           |
 | adjusted_episode_number | -8                                             | 0                                              | Коригування номера епізоду сезону для абсолютного або азіатського неймінгу |
-| guid                   | "t678205"                                           | "t675888"                                      | Системне значення для ідентифікації конкретного аніме у списку        |
+| guid                   | t678205                                           | t675888                                      | Системне значення для ідентифікації конкретного аніме у списку        |
 
 </small>
 
