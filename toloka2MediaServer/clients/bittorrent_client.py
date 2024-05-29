@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class BittorrentClient(ABC):
     @abstractmethod
-    def add_torrent(self, torrent_file, category, tags, is_paused):
+    def add_torrent(self, torrents, category, tags, is_paused):
         """Add a new torrent."""
         pass
 
@@ -45,4 +45,9 @@ class BittorrentClient(ABC):
     @abstractmethod
     def recheck_torrent(self, torrent_hashes):
         """Recheck torrents."""
+        pass
+
+    @abstractmethod
+    def end_session(self, torrent_hashes):
+        """End client session."""
         pass

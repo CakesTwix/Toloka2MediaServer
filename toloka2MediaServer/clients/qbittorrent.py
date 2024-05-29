@@ -5,8 +5,8 @@ from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
 from toloka2MediaServer.config import app, selectedClient
 
 # Set Logging
-logging.basicConfig(level=app["Python"]["logging"])
-class QBittorrentClient(BittorrentClient):
+logger = logging.getLogger(__name__)
+class QbittorrentClient(BittorrentClient):
     def __init__(self):
         """Initialize and log in to the qBittorrent client."""
         try:
@@ -17,19 +17,19 @@ class QBittorrentClient(BittorrentClient):
                 password=app[selectedClient]["password"],
             )
             self.api_client.auth_log_in()
-            logging.info("Connected to qBittorrent client successfully.")
+            logger.info("Connected to qBittorrent client successfully.")
         except qbittorrentapi.LoginFailed as e:
-            logging.critical("Failed to log in to qBittorrent: Incorrect login details.")
+            logger.critical("Failed to log in to qBittorrent: Incorrect login details.")
             raise
         except qbittorrentapi.APIConnectionError as e:
-            logging.critical("Failed to connect to qBittorrent: Check connection details.")
+            logger.critical("Failed to connect to qBittorrent: Check connection details.")
             raise
         except Exception as e:
-            logging.critical(f"An unexpected error occurred: {str(e)}")
+            logger.critical(f"An unexpected error occurred: {str(e)}")
             raise
     
-    def add_torrent(self, torrent_file, category, tags, is_paused):
-        return self.api_client.torrents.add(torrent_files=torrent_file, category=category, tags=tags, is_paused=is_paused)
+    def add_torrent(self, torrents, category, tags, is_paused):
+        return self.api_client.torrents.add(torrent_files=torrents, category=category, tags=tags, is_paused=is_paused)
 
     def get_torrent_info(self, status_filter, category, tags, sort, reverse):
         return self.api_client.torrents_info(status_filter=status_filter, category=category, tags=tags, sort=sort, reverse=reverse)
@@ -54,3 +54,6 @@ class QBittorrentClient(BittorrentClient):
 
     def recheck_torrent(self, torrent_hashes):
         return self.api_client.torrents_recheck(torrent_hashes=torrent_hashes)
+
+    def end_session(self):
+        return self.api_client.auth_log_out()

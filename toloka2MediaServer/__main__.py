@@ -4,20 +4,44 @@ import logging
 import sys
 import re
 import time
+from toloka2MediaServer.config import app, titles, toloka
 
 # Configure logging
-logging.basicConfig(level=app["Python"]["logging"])
+# Yeah, I know, that it looks strange, but .basicConfig not working for some reason
+# with manual handler add, it starts writing to a file.
+config_level_name = app["Python"]["logging"]
+# Use getattr to safely get the logging level from the logging module
+# Default to logging.INFO if the specified level name is not found
+logging_level = getattr(logging, config_level_name.upper(), logging.INFO)
 
-from toloka2MediaServer.config import app, titles, toloka, selectedClient
+logging.basicConfig(
+    filename='toloka2MediaServer/data/app.log',  # Name of the file where logs will be written
+    filemode='a',  # Append mode, which will append the logs to the file if it exists
+    format='%(asctime)s - %(levelname)s - %(message)s',  # Format of the log messages
+    level=logging_level #log level from config
+)
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging_level)  # Set the logger to capture INFO and higher level messages
+# Create a file handler which logs even debug messages
+fh = logging.FileHandler('toloka2MediaServer/data/app.log')
+fh.setLevel(logging_level)  # Set the file handler to capture DEBUG and higher level messages
+# Create formatter and add it to the handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+# Add the handler to the logger
+logger.addHandler(fh)
+
+logger.info("------------------------------------------")
+
+from toloka2MediaServer.clients.dynamic import dynamic_client_init
 from toloka2MediaServer.utils.torrent_processor import add, update
 from toloka2MediaServer.utils.title import Title, config_to_title
 from toloka2MediaServer.utils.general import extract_torrent_details, get_numbers
 
-# Dynamic client import based on selected client
-client_module_name = f"toloka2MediaServer.clients.{selectedClient.lower()}"
-client_class_name = "BittorrentClient"  # Assuming all client classes are named 'BittorrentClient'
-BittorrentClient = __import__(client_module_name, fromlist=[client_class_name])
-client = getattr(BittorrentClient, client_class_name)
+
+# Initialize the client based on configuration
+client = dynamic_client_init()
 
 # Setup argparse
 parser = argparse.ArgumentParser(description="Console utility for updating torrents from Toloka.")
@@ -51,6 +75,7 @@ if args.num:
 
 if args.url:
     #--add --url https://toloka.to/t675888 --season 02 --index 2 --correction 0 --title "Tsukimichi -Moonlit Fantasy-"
+    logger.debug(f"--add {args.add} --url {args.url} --season {args.season} --index{args.index} --correction{args.correction} --title{args.title}")
     title = Title()
     title.episode_index = args.index
     title.adjusted_episode_number = args.correction
@@ -80,28 +105,24 @@ if args.url:
     default_meta = app["Toloka"]["default_meta"]
     title.meta = default_meta
     
-    add(torrent, title)
+    add(client, torrent, title)
     sys.exit()
 
 # Adding new title
 if args.add:
     #--add "Tsuki ga Michibiku Isekai Douchuu (Season 2)"
+    logger.debug(f"--add {args.add}")
     title = Title()
     
     torrent = toloka.search(args.add)
     if not torrent:
-        logging.info("No results found.")
+        logger.info(f"No results found. {args.add}")
         sys.exit()
     for index, item in enumerate(torrent[:10]):
         print(f"{index} : {item.name} - {item.url}")
     torrent = torrent[int(input("Enter the index of the desired torrent: "))]
-    
-    
     suggested_name, suggested_codename = extract_torrent_details(torrent.name)
-
-    
     title.code_name = input(f"Default:{suggested_codename}. Enter the codename: ") or suggested_codename
-    
     # Collect additional data
     season_number = input("Enter the season number: ")
     title.season_number = season_number.zfill(2)
@@ -113,17 +134,23 @@ if args.add:
     default_meta = app["Toloka"]["default_meta"]
     title.meta = input(f"Default: {default_meta}. Enter additional metadata tags: ") or default_meta
 
-    add(torrent, title)
+    add(client, torrent, title)
     sys.exit()
 
 # Update specific or all anime
 if args.codename:
+    logger.debug(f"--codename {args.codename}")
     title_from_config = config_to_title(titles, args.codename)
-    update(title_from_config, args.force)
+    update(client, title_from_config, args.force)
+    client.end_session()
 else:
+    logger.debug(f"no args, update all")
     for config in titles.sections():
         #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
         #could be changed to some configuration, as not so required for small list
         time.sleep(10)
         title_from_config = config_to_title(titles, config)
-        update(title_from_config, args.force)
+        update(client, title_from_config, args.force)
+        client.end_session()
+
+sys.exit()

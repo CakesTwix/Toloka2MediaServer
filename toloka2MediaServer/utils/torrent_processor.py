@@ -8,6 +8,8 @@ from toloka2MediaServer.config import toloka, app, selectedClient, update_config
 from toloka2MediaServer.utils.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
+logger = logging.getLogger(__name__)
+
 def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
     tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link if new else torrent.torrent_url}")
@@ -16,17 +18,17 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
     tag = app[selectedClient]["tag"]
     
     #qbit api will not return hash of added torrent, so we are not able to make easy search request afterwards 
-    client.torrents.add(torrent_files=tolokaTorrentFile, category=category, tags=[tag], is_paused=True)
+    client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True)
     # Small timeout, as looks like sometimes it take a bit more time for qBit to add torrent(based on torrent size?)
     time.sleep(2)
-    filtered_torrents = client.torrents_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True)
+    filtered_torrents = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True)
     added_torrent = filtered_torrents[0]
-    logging.debug(added_torrent)
+    logger.debug(added_torrent)
     
     title.hash = added_torrent.info.hash
     title.publish_date = torrent.date if new else torrent.registered_date
     
-    get_filelist = client.torrents.files(title.hash)
+    get_filelist = client.get_files(title.hash)
     first_fileName = get_filelist[0].name
 
     if new:
@@ -65,21 +67,19 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
         new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta}-{title.release_group}{title.ext_name}"
         new_path = replace_second_part_in_path(file.name, new_name)
-        client.torrents.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
+        client.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
 
     folderName = f"{title.torrent_name} S{title.season_number} {title.meta}[{title.release_group}]"
     old_path = get_folder_name_from_path(first_fileName)
-    client.torrents.rename_folder(torrent_hash=title.hash, old_path=old_path, new_path=folderName)
-    client.torrents.rename(torrent_hash=title.hash, new_torrent_name=folderName)
+    client.rename_folder(torrent_hash=title.hash, old_path=old_path, new_path=folderName)
+    client.rename_torrent(torrent_hash=title.hash, new_torrent_name=folderName)
     
     config = title_to_config(title)
     if new:
-        client.torrents.resume(torrent_hashes=title.hash)
+        client.resume_torrent(torrent_hashes=title.hash)
     else:
-        #recheck not working? api bug?
-        #client.torrents.recheck(torrent_hashes=torrent_hash) same added_torrent.recheck() do nothing
-        added_torrent.recheck()
-        client.torrents.resume(torrent_hashes=title.hash)
+        client.recheck_torrent(torrent_hashes=title.hash)
+        client.resume_torrent(torrent_hashes=title.hash)
         
     update_config(config, title.code_name)    
     #qbt_client.auth_log_out() logout from qbit session TBD
@@ -87,13 +87,14 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
 def update(client: BittorrentClient, title: Title, force: bool):
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{title.guid.strip('"')}")
     if title.publish_date not in torrent.registered_date:
-        logging.info(f"Date is different! : {torrent.name}")
+        logger.info(f"Date is different! : {torrent.name}")
         if not force:
-            client.torrents_delete(delete_files=False, torrent_hashes=title.hash)
-        process_torrent(torrent, title)
+            client.delete_torrent(delete_files=False, torrent_hashes=title.hash)
+        process_torrent(client, torrent, title)
     else:
-        logging.info(f"Update not required! : {torrent.name}")
+        logger.info(f"Update not required! : {torrent.name}")
 
 def add(client: BittorrentClient, torrent, title: Title):
 
     process_torrent(client, torrent, title=title, new=True)
+    client.end_session()
