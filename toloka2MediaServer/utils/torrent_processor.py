@@ -22,7 +22,7 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
     add_torrent_response = client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True, download_dir=title.download_dir)
     time.sleep(2)
     if selectedClient == "qbittorrent":
-        filtered_torrents = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True)
+        filtered_torrents = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True, torrent_hash=None)
         added_torrent = filtered_torrents[0]
         title.hash = added_torrent.info.hash
         get_filelist = client.get_files(title.hash)
