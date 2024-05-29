@@ -21,7 +21,7 @@ def extract_torrent_details(torrent_name):
     matched_year = re.search(r'\((\d{4})\)', torrent_name)
     
     if matched_name:
-        suggested_name = f"{matched_name.group(1)} ({matched_year.group(1)})".strip()
+        suggested_name = f"{matched_name.group(1)} ({matched_year.group(1) if matched_year else ""})".strip()
         suggested_name = re.sub(r'\s+', ' ', suggested_name)
         suggested_codename = re.sub(r'\W+', '', matched_name.group(1)).strip()
     else:
