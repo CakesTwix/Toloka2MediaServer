@@ -13,7 +13,7 @@ This project is specifically tailored to use the Toloka torrent tracker and a cu
 
 The scripts in this project make direct API calls to the torrent clients like Transmission and qBittorrent to adjust the torrent name, folder name, and file name according to the following naming convention:
 - Torrent/Folder: `SeriesName Season [Quality] [Language] [Subs] [ReleaseGroup]`
-- File: SeriesName `SeasonEpisode [Quality] [Language] [Subs]-ReleaseGroup.extension`
+- File: `SeriesName SeasonEpisode [Quality] [Language] [Subs]-ReleaseGroup.extension`
 
 Any future documentation will be provided in Ukrainian. Please use a translator if needed or create new issues if you require further assistance.
 
@@ -37,6 +37,63 @@ The Girl I Like Forgot Her Glasses (S1)
 ├── Episode S1E07.mkv
 └── Episode S1E08.mkv
 ```
+
+
+## Огляд Інтерфейсу Користувача
+
+### Інтерфейс Командного Рядка (CLI)
+
+Застосунок надає інтерфейс командного рядка (CLI) для користувачів, які віддають перевагу безпосередньому взаємодії з програмним забезпеченням через їхній термінал. Нижче наведено приклад виконання звичайної команди та її виводу.
+
+#### Приклад Команди
+
+Ось як запустити приклад команди:
+
+```bash
+python -m toloka2MediaServer -a "Kimetsu no Yaiba: Hashira Geiko-hen"
+```
+
+#### Вивід
+
+```
+0 : Вбивця демонів: навчання Хашіра (Сезон 4, 03 з XX) / Kimetsu no Yaiba: Hashira Geiko-hen (2024) WEBDLRip 1080p H.265 Ukr/Jap | sub Ukr - t678861
+Enter the index of the desired torrent: 0
+Default:KimetsunoYaibaHashiraGeikohen. Enter the codename:
+Enter the season number: 5
+Enter the file extension, e.g., ".mkv":
+Default: /esata/Downloads/toloka/tr:. Enter the download directory path.
+Default: Kimetsu no Yaiba: Hashira Geiko-hen (2024). Enter the directory name for the downloaded files:
+Enter the release group name, or it will default to the torrent's author:
+Default: [WEBRip-1080p][UK+JA][Ukr Sub]. Enter additional metadata tags:
+```
+
+**Скріншот:**
+
+![CLI Скріншот](assets/cli.png)
+
+### Веб-Інтерфейс Користувача (Web UI)
+
+Для користувачів, які віддають перевагу графічному інтерфейсу, застосунок також включає веб-інтерфейс. Нижче наведено знімок екрану, який показує основний інтерфейс.
+
+#### Головна Сторінка
+
+Головна сторінка надає зручний інтерфейс для доступу до всіх функцій застосунку. 
+
+**Скріншот:**
+
+![Web UI Скріншот](assets/webapp.png)
+
+## Огляд работи
+
+**Перед змінами:**  
+![Web UI Скріншот](assets/files-before.png) 
+**Після змін:**  
+![Web UI Скріншот](assets/files-after.png)
+
+**Перед змінами:**  
+![Web UI Скріншот](assets/Info-before.png) 
+**Після змін:**  
+![Web UI Скріншот](assets/Info-after.png)
 
 ### Використання/Приклади
 Цей блок містить приклади використання команд для `toloka2MediaServer`. Коментарі надають пояснення щодо деяких параметрів та їх використання.
@@ -76,6 +133,120 @@ crontab -e
 ```
 > 0 8 * * * cd /path/to/toloka2MediaServer/ && python3 -m toloka2MediaServer
 
+## Розгортання за допомогою Docker
+
+Дотримуйтесь цих кроків для розгортання `Toloka2MediaServer` за допомогою Docker:
+
+### Передумови
+
+Переконайтеся, що Docker встановлено на вашій системі. Ви можете завантажити його з [офіційного сайту Docker](https://www.docker.com/get-started).
+
+### Клонування репозиторію
+
+Спочатку клонуйте репозиторій на ваш локальний комп'ютер:
+
+```bash
+cd ~
+git clone https://github.com/maksii/Toloka2MediaServer
+cd Toloka2MediaServer
+```
+
+### Файли конфігурації
+
+Перед побудовою образу Docker створіть і налаштуйте необхідні файли конфігурації:
+
+```bash
+mkdir -p /home/appconfig
+
+# Створіть і відредагуйте файл app.ini
+nano /home/appconfig/app.ini
+
+# Створіть і відредагуйте файл titles.ini
+nano /home/appconfig/titles.ini
+```
+
+Переконайтеся, що ви заповнили файли `app.ini` та `titles.ini` відповідно до вимог вашого додатку.
+
+### Побудова образу Docker
+
+Побудуйте образ Docker за допомогою наступної команди:
+
+```bash
+docker build -t toloka2mediaserver .
+```
+
+### Запуск контейнера Docker
+
+Запустіть ваш контейнер Docker за допомогою наступної команди:
+
+```bash
+docker run -d -p 5000:5000 -v /home/appconfig:/app/toloka2MediaServer/data --name toloka toloka2mediaserver
+```
+
+Ця команда запустить контейнер у відокремленому режимі, відображатиме порт 5000 контейнера на порт 5000 на хості і приєднає створену вами директорію конфігурації `/home/appconfig` до `/app/toloka2MediaServer/data` всередині контейнера.
+
+### Перевірка розгортання
+
+Після запуску контейнера ви можете перевірити, що додаток працює, відвідавши:
+
+```
+http://localhost:5000
+```
+
+Замініть `localhost` на IP-адресу вашого сервера, якщо ви звертаєтесь з іншої машини.
+
+## Розгортання за допомогою готового образу Docker
+
+Цей розділ пояснює, як розгорнути `Toloka2MediaServer` використовуючи готовий образ з Docker Hub.
+
+### Використання Docker
+
+1. **Завантаження образу Docker**
+   Завантажте готовий образ з Docker Hub за допомогою наступної команди:
+
+   ```bash
+   docker pull maksii/toloka2mediaserver:latest
+   ```
+
+
+2. **Запуск контейнера**
+   Використовуйте наступну команду для запуску контейнера:
+
+   ```bash
+   docker run -d -p 5000:5000 -v /path/to/your/config:/app/toloka2MediaServer/data --name toloka maksii/toloka2mediaserver:latest
+   ```
+
+   Замініть `/path/to/your/config` на шлях до вашої папки конфігурації.
+
+### Використання Portainer
+
+Якщо ви використовуєте Portainer для управління контейнерами Docker, ви можете легко розгорнути `Toloka2MediaServer` як стек:
+
+1. **Логін в Portainer**
+   Увійдіть у вашу панель керування Portainer .
+
+2. **Створення стека**
+   Перейдіть до розділу "Stacks" і натисніть "Add Stack".
+
+3. **Конфігурація стека**
+   Дайте ім'я вашому стеку і вставте наступний YAML конфіг у поле "Web editor":
+
+   ```yaml
+   version: '3.8'
+   services:
+     toloka2mediaserver:
+       image: maksii/toloka2mediaserver:latest
+       ports:
+         - "5000:5000"
+       volumes:
+         - /path/to/your/config:/app/toloka2MediaServer/data
+       restart: unless-stopped
+   ```
+
+   Замініть `/path/to/your/config` на шлях до вашої папки конфігурації.
+
+4. **Розгортання стека**
+   Натисніть "Deploy the stack" для запуску вашого додатку.
 
 ## Configs
 
