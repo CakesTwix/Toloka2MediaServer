@@ -10,9 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the Python script and any other necessary files
 COPY . .
 
-# Copy the toloka2MediaServer directory
-COPY toloka2MediaServer /app/toloka2MediaServer
-
 # Add the config folder as a volume
 VOLUME /app/toloka2MediaServer/data
 
@@ -31,7 +28,9 @@ CMD cron && tail -f /var/log/cron.log
 EXPOSE 5000
 
 # Define environment variable
-ENV PORT 8000
+ENV PORT 5000
 
-# Run app.py when the container launches
-CMD ["python", "-m", "toloka2MediaServerWeb"]
+# Start-up script to run both cron and the web server
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]
