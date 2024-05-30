@@ -2,6 +2,7 @@ import logging
 from flask import Flask, request, render_template, redirect, url_for, session
 import sys
 
+import toloka2MediaServer.config
 import toloka2MediaServer.main_logic
 sys.path.insert(1, '../toloka2MediaServer')
 import toloka2MediaServer
@@ -35,7 +36,7 @@ class RequestData:
 
 @app.route('/', methods=['GET'])
 def index():
-    titles = toloka2MediaServer.main_logic.titles
+    titles = toloka2MediaServer.config.update_titles()
     # Creating a list of dictionaries, each containing the data for the selected keys
     data = []
     codenames =[]
