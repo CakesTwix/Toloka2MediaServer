@@ -4,11 +4,11 @@ FROM python:3
 # Set the working directory in the container
 WORKDIR /app
 
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
 # Copy the Python script and any other necessary files
 COPY . .
-
-# Install any dependencies
-RUN pip install -r requirements.txt
 
 # Copy the toloka2MediaServer directory
 COPY toloka2MediaServer /app/toloka2MediaServer
@@ -26,3 +26,12 @@ RUN touch /var/log/cron.log
 
 # Start cron service
 CMD cron && tail -f /var/log/cron.log
+
+# Make port available to the world outside this container
+EXPOSE 5000
+
+# Define environment variable
+ENV PORT 8000
+
+# Run app.py when the container launches
+CMD ["python", "-m", "toloka2MediaServerWeb"]
