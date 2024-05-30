@@ -1,7 +1,7 @@
 """Entering the program, this is where it all starts"""
-from args_parser import get_parser
-from logger_setup import setup_logging
 import sys
+from toloka2MediaServer.args_parser import get_parser
+from toloka2MediaServer.logger_setup import setup_logging
 from toloka2MediaServer.config import app
 
 from toloka2MediaServer.clients.dynamic import dynamic_client_init
@@ -23,7 +23,7 @@ if args.num:
 if args.url:
     #--add --url https://toloka.to/t675888 --season 02 --index 2 --correction 0 --title "Tsukimichi -Moonlit Fantasy-"
     logger.debug(f"--add {args.add} --url {args.url} --season {args.season} --index{args.index} --correction{args.correction} --title{args.title}")
-    add_release_by_url(args)
+    add_release_by_url(args, logger)
     sys.exit()
 
 # Adding new title

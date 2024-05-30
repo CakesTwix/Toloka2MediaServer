@@ -31,12 +31,30 @@ class RequestData:
 
 
 def index():
+    titles = toloka2MediaServer.main_logic.titles
+    # Creating a list of dictionaries, each containing the data for the selected keys
+    data = []
+    keys = ['torrent_name', 'publish_date', 'guid']
+    for section in titles.sections():
+        section_data = {'codename': section}
+        for key in keys:
+            section_data[key] = titles.get(section, key)
+        data.append(section_data)
+
+    # Define column headers and rename them
+    columns = {
+        'codename': 'Codename',
+        'torrent_name': 'Name',
+        'publish_date': 'Last Updated',
+        'guid': 'URL'
+    }
+        
     if request.method == 'POST':
         requestData = RequestData(
             url = request.form['url'],
             season = request.form['season'],
-            index = request.form['index'],
-            correction = request.form['correction'],
+            index = int(request.form['index']),
+            correction = int(request.form['correction']),
             title = request.form['title'],
         )
         
@@ -45,4 +63,4 @@ def index():
         
         output = toloka2MediaServer.main_logic.add_release_by_url(requestData, logger)
         return render_template('result.html', output=output)
-    return render_template('index.html')
+    return render_template('index.html', data=data, columns=columns)

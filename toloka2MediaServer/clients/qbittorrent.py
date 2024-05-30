@@ -31,8 +31,8 @@ class QbittorrentClient(BittorrentClient):
     def add_torrent(self, torrents, category, tags, is_paused, download_dir):
         return self.api_client.torrents.add(torrent_files=torrents, category=category, tags=tags, is_paused=is_paused)
 
-    def get_torrent_info(self, status_filter, category, tags, sort, reverse,torrent_hash):
-        return self.api_client.torrents_info(status_filter=status_filter, category=category, tags=tags, sort=sort, reverse=reverse)
+    def get_torrent_info(self, status_filter, category, tags, sort, reverse, torrent_hash=None):
+        return self.api_client.torrents_info(status_filter=status_filter, category=category, tag=tags, sort=sort, reverse=reverse)
 
     def get_files(self, torrent_hash):
         return self.api_client.torrents_files(torrent_hash)
