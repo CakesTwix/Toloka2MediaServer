@@ -4,6 +4,7 @@ import time
 from toloka2MediaServer.clients.dynamic import dynamic_client_init
 from toloka2MediaServer.models.operation_result import OperationResult, OperationType, ResponseCode
 from toloka2MediaServer.utils.general import extract_torrent_details
+from toloka2MediaServer.utils.operation_decorator import operation_tracker
 from toloka2MediaServer.utils.title import Title, config_to_title
 from toloka2MediaServer.utils.torrent_processor import add, update
 
@@ -11,104 +12,61 @@ from toloka2MediaServer.config import titles, toloka, application_config
 
 client = dynamic_client_init()
 
-def add_release_by_url(args, logger):
-    operation_result = OperationResult()
-    operation_result.operation_type = OperationType.ADD_BY_URL
-    operation_result.response_code = ResponseCode.PARTIAL
-    operation_result.start_time = datetime.now()
-    try:
-        title = Title()
-        title.episode_index = args.index
-        title.adjusted_episode_number = args.correction
+@operation_tracker(OperationType.ADD_BY_URL)  
+def add_release_by_url(args, logger, operation_result=None):
+    title = Title()
+    title.episode_index = args.index
+    title.adjusted_episode_number = args.correction
+    proposed_url = args.url
+    proposed_guid = f"t{re.search(r't(\d+)', proposed_url).group(1)}"
+    torrent = toloka.get_torrent(f"{toloka.toloka_url}/{proposed_guid}")
+    #temporary fix, as get_torrent returns other fields
+    search_torrent = toloka.search(torrent.name)
+    matched_index = 0
+    for index, item in enumerate(search_torrent[:10]):
+        matched_index = index if item.url == proposed_guid else 0
+    torrent = search_torrent[matched_index]
+    suggested_name, suggested_codename = extract_torrent_details(torrent.name)
+    title.code_name = suggested_codename
+    # Collect additional data
+    season_number = args.season
+    title.season_number = season_number.zfill(2)
+    title.ext_name = ".mkv"
+    default_download_dir = application_config.default_download_dir
+    title.download_dir = default_download_dir
+    title.torrent_name = args.title or suggested_name
+    title.release_group = torrent.author
+    default_meta = application_config.default_meta
+    title.meta = default_meta
+    operation_result = add(client, torrent, title, operation_result)
 
-        proposed_url = args.url
-        proposed_guid = f"t{re.search(r't(\d+)', proposed_url).group(1)}"
-        torrent = toloka.get_torrent(f"{toloka.toloka_url}/{proposed_guid}")
+@operation_tracker(OperationType.ADD_BY_CODE)    
+def add_release_by_name(args, logger, operation_result=None):
+    title = Title()
+    torrent = toloka.search(args.add)
+    if not torrent:
+        logger.info(f"No results found. {args.add}")
+        return
+    for index, item in enumerate(torrent[:10]):
+        print(f"{index} : {item.name} - {item.url}")
+    torrent = torrent[int(input("Enter the index of the desired torrent: "))]
+    suggested_name, suggested_codename = extract_torrent_details(torrent.name)
+    title.code_name = input(f"Default:{suggested_codename}. Enter the codename: ") or suggested_codename
+    # Collect additional data
+    season_number = input("Enter the season number: ")
+    title.season_number = season_number.zfill(2)
+    title.ext_name = input('Enter the file extension, e.g., ".mkv": ') or ".mkv"
+    default_download_dir = application_config.default_download_dir
+    title.download_dir = input(f"Default: {default_download_dir}:. Enter the download directory path.  ") or default_download_dir
+    title.torrent_name = input(f"Default: {suggested_name}. Enter the directory name for the downloaded files: ") or suggested_name
+    title.release_group = input("Enter the release group name, or it will default to the torrent's author: ") or torrent.author
+    default_meta = application_config.default_meta
+    title.meta = input(f"Default: {default_meta}. Enter additional metadata tags: ") or default_meta
+    operation_result = add(client, torrent, title, operation_result)
 
-        #temporary fix, as get_torrent returns other fields
-        search_torrent = toloka.search(torrent.name)
-        matched_index = 0
-        for index, item in enumerate(search_torrent[:10]):
-            matched_index = index if item.url == proposed_guid else 0
-        torrent = search_torrent[matched_index]
-        suggested_name, suggested_codename = extract_torrent_details(torrent.name)
-
-        title.code_name = suggested_codename
-
-        # Collect additional data
-        season_number = args.season
-        title.season_number = season_number.zfill(2)
-        title.ext_name = ".mkv"
-        default_download_dir = application_config.default_download_dir
-        title.download_dir = default_download_dir
-        title.torrent_name = args.title or suggested_name
-        title.release_group = torrent.author
-        default_meta = application_config.default_meta
-        title.meta = default_meta
-
-        operation_result = add(client, torrent, title, operation_result)
-    except Exception as e:
-        operation_result.response_code = ResponseCode.FAILURE
-        operation_result.operation_logs.append(str(e))
-        return operation_result
-    
-    operation_result.response_code = ResponseCode.SUCCESS      
-    operation_result.end_time = datetime.now()
-    return operation_result
-    
-def add_release_by_name(args, logger):
-    operation_result = OperationResult()
-    operation_result.operation_type = OperationType.ADD_BY_CODE
-    operation_result.response_code = ResponseCode.PARTIAL
-    operation_result.start_time = datetime.now()
-    try:
-        title = Title()
-
-        torrent = toloka.search(args.add)
-        if not torrent:
-            logger.info(f"No results found. {args.add}")
-            return
-        for index, item in enumerate(torrent[:10]):
-            print(f"{index} : {item.name} - {item.url}")
-        torrent = torrent[int(input("Enter the index of the desired torrent: "))]
-        suggested_name, suggested_codename = extract_torrent_details(torrent.name)
-        title.code_name = input(f"Default:{suggested_codename}. Enter the codename: ") or suggested_codename
-        # Collect additional data
-        season_number = input("Enter the season number: ")
-        title.season_number = season_number.zfill(2)
-        title.ext_name = input('Enter the file extension, e.g., ".mkv": ') or ".mkv"
-        default_download_dir = application_config.default_download_dir
-        title.download_dir = input(f"Default: {default_download_dir}:. Enter the download directory path.  ") or default_download_dir
-        title.torrent_name = input(f"Default: {suggested_name}. Enter the directory name for the downloaded files: ") or suggested_name
-        title.release_group = input("Enter the release group name, or it will default to the torrent's author: ") or torrent.author
-        default_meta = application_config.default_meta
-        title.meta = input(f"Default: {default_meta}. Enter additional metadata tags: ") or default_meta
-
-        add(client, torrent, title)
-    except Exception as e:
-        operation_result.response_code = ResponseCode.FAILURE
-        operation_result.operation_logs.append(str(e))
-        return operation_result
-    
-    operation_result.response_code = ResponseCode.SUCCESS      
-    operation_result.end_time = datetime.now()
-    return operation_result
-    
-def update_release_by_name(args, codename, logger):
-    operation_result = OperationResult()
-    operation_result.operation_type = OperationType.UPDATE_BY_CODE
-    operation_result.response_code = ResponseCode.PARTIAL
-    operation_result.start_time = datetime.now()
-    try:
-        operation_result = update_release(args, codename, logger, operation_result)
-    except Exception as e:
-        operation_result.response_code = ResponseCode.FAILURE
-        operation_result.operation_logs.append(str(e))
-        return operation_result
-    
-    operation_result.response_code = ResponseCode.SUCCESS      
-    operation_result.end_time = datetime.now()
-    return operation_result
+@operation_tracker(OperationType.UPDATE_BY_CODE)      
+def update_release_by_name(args, codename, logger, operation_result=None):
+    operation_result = update_release(args, codename, logger, operation_result)
 
 def update_release(args, codename, logger, operation_result):
     title_from_config = config_to_title(titles, codename)
@@ -116,22 +74,10 @@ def update_release(args, codename, logger, operation_result):
     client.end_session()
     return operation_result
 
-def update_releases(args, logger):
-    operation_result = OperationResult()
-    operation_result.operation_type = OperationType.UPDATE_ALL
-    operation_result.response_code = ResponseCode.PARTIAL
-    operation_result.start_time = datetime.now()
-    try:
-        for config in titles.sections():
-            #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
-            #could be changed to some configuration, as not so required for small list
-            time.sleep(application_config.wait_time)
-            update_release(args, config, logger, operation_result)
-    except Exception as e:
-        operation_result.response_code = ResponseCode.FAILURE
-        operation_result.operation_logs.append(str(e))
-        return operation_result
-    
-    operation_result.response_code = ResponseCode.SUCCESS      
-    operation_result.end_time = datetime.now()
-    return operation_result
+@operation_tracker(OperationType.UPDATE_ALL)   
+def update_releases(args, logger, operation_result=None):
+    for config in titles.sections():
+    #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
+    #could be changed to some configuration, as not so required for small list
+        time.sleep(application_config.wait_time)
+        update_release(args, config, logger, operation_result)
