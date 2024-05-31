@@ -2,7 +2,7 @@ import logging
 import qbittorrentapi
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
-from toloka2MediaServer.config import app, selectedClient
+from toloka2MediaServer.config import app, application_config
 
 # Set Logging
 logger = logging.getLogger(__name__)
@@ -11,10 +11,10 @@ class QbittorrentClient(BittorrentClient):
         """Initialize and log in to the qBittorrent client."""
         try:
             self.api_client = qbittorrentapi.Client(
-                host=app[selectedClient]["host"],
-                port=app[selectedClient]["port"],
-                username=app[selectedClient]["username"],
-                password=app[selectedClient]["password"],
+                host=app[application_config.client]["host"],
+                port=app[application_config.client]["port"],
+                username=app[application_config.client]["username"],
+                password=app[application_config.client]["password"],
             )
             self.api_client.auth_log_in()
             logger.info("Connected to qBittorrent client successfully.")

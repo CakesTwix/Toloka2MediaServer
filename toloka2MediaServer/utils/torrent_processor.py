@@ -4,7 +4,7 @@ import time
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
 
-from toloka2MediaServer.config import toloka, app, selectedClient, update_config
+from toloka2MediaServer.config import toloka, app, application_config, update_config
 from toloka2MediaServer.utils.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
@@ -16,12 +16,12 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
     
     tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link if new else torrent.torrent_url}")
         
-    category = app[selectedClient]["category"]
-    tag = app[selectedClient]["tag"]
+    category = app[application_config.client]["category"]
+    tag = app[application_config.client]["tag"]
     
     add_torrent_response = client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True, download_dir=title.download_dir)
-    time.sleep(2)
-    if selectedClient == "qbittorrent":
+    time.sleep(application_config.client_wait_time)
+    if application_config.client == "qbittorrent":
         filtered_torrents = client.get_torrent_info(status_filter='paused', category=category, tags=tag, sort="added_on", reverse=True)
         added_torrent = filtered_torrents[0]
         title.hash = added_torrent.info.hash
@@ -74,7 +74,7 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
         source_episode = get_numbers(file.name)[title.episode_index]
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
         new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta}-{title.release_group}{title.ext_name}"
-        if selectedClient == "qbittorrent":
+        if application_config.client == "qbittorrent":
             new_path = replace_second_part_in_path(file.name, new_name)
         else:
             new_path = new_name
