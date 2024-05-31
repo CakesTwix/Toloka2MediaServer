@@ -8,7 +8,7 @@ from toloka2MediaServer.utils.operation_decorator import operation_tracker
 from toloka2MediaServer.utils.title import Title, config_to_title
 from toloka2MediaServer.utils.torrent_processor import add, update
 
-from toloka2MediaServer.config import titles, toloka, application_config
+from toloka2MediaServer.config import titles, toloka, application_config, update_titles
 
 client = dynamic_client_init()
 
@@ -69,6 +69,8 @@ def update_release_by_name(args, codename, logger, operation_result=None):
     operation_result = update_release(args, codename, logger, operation_result)
 
 def update_release(args, codename, logger, operation_result):
+    #update to be sure, that we always work with latest version of titles
+    titles = update_titles()
     title_from_config = config_to_title(titles, codename)
     operation_result = update(client, title_from_config, args.force, operation_result)
     client.end_session()
