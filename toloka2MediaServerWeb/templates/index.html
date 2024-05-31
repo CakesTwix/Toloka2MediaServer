@@ -143,6 +143,18 @@
                             resultList.style.display = 'block';
                         }
                     }
+
+                    document.addEventListener("DOMContentLoaded", function() {
+            const forms = document.querySelectorAll('form');
+
+            forms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    document.querySelectorAll('form button').forEach(button => {
+                        button.disabled = true;
+                    });
+                });
+            });
+        });
                 </script>
             </div>
             <!-- Section 1 -->
