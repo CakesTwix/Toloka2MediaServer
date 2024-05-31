@@ -55,7 +55,7 @@ def index():
         'publish_date': 'Last Updated',
         'guid': 'URL'
     }
-    output = session.pop('output', None)   
+    output = session.pop('output', {})   
     return render_template('index.html', data=data, columns=columns, codenames=codenames, output=output)
 
 @app.route('/add_release', methods=['POST'])
@@ -73,11 +73,12 @@ def add_release():
 
         #--add --url https://toloka.to/t675888 --season 02 --index 2 --correction 0 --title "Tsukimichi -Moonlit Fantasy-"
 
-        output = toloka2MediaServer.main_logic.add_release_by_url(requestData, logger)
+        operation_result = toloka2MediaServer.main_logic.add_release_by_url(requestData, logger)
+        output = serialize_operation_result(operation_result)
         message = f'Release added from URL. {output}'
     except Exception as e:
         message = f'Error: {str(e)}'
-    session['output'] = message
+    session['output'] = output
     return redirect(url_for('index'))
 
 @app.route('/update_release', methods=['POST'])
@@ -87,11 +88,12 @@ def update_release():
         requestData = RequestData(
             codename = request.form['codename']
         )
-        output = toloka2MediaServer.main_logic.update_release_by_name(requestData, requestData.codename, logger)
+        operation_result = toloka2MediaServer.main_logic.update_release_by_name(requestData, requestData.codename, logger)
+        output = serialize_operation_result(operation_result)
         message = f'Release updated by name  {output}'
     except Exception as e:
         message = f'Error: {str(e)}'
-    session['output'] = message
+    session['output'] = output
     return redirect(url_for('index'))
 
 @app.route('/update_all_releases', methods=['POST'])
@@ -99,10 +101,22 @@ def update_all_releases():
     # Process to update all releases
     try:
         requestData = RequestData()
-        output = toloka2MediaServer.main_logic.update_releases(requestData, logger)
-
+        operation_result = toloka2MediaServer.main_logic.update_releases(requestData, logger)
+        output = serialize_operation_result(operation_result)
         message = f'All releases updated  {output}'
     except Exception as e:
         message = f'Error: {str(e)}'
-    session['output'] = message
+    session['output'] = output
     return redirect(url_for('index'))
+
+def serialize_operation_result(operation_result):
+    return {
+        "operation_type": operation_result.operation_type.name if operation_result.operation_type else None,
+        "torrent_references": [str(torrent) for torrent in operation_result.torrent_references],
+        "titles_references": [str(titles) for titles in operation_result.titles_references],    
+        "status_message": operation_result.status_message,
+        "response_code": operation_result.response_code.name if operation_result.response_code else None,
+        "operation_logs": operation_result.operation_logs,
+        "start_time": operation_result.start_time.isoformat() if operation_result.start_time else None,
+        "end_time": operation_result.end_time.isoformat() if operation_result.end_time else None
+    }

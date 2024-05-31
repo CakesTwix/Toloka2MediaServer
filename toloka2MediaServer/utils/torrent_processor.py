@@ -5,12 +5,13 @@ import time
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
 
 from toloka2MediaServer.config import toloka, app, application_config, update_config
+from toloka2MediaServer.models.operation_result import OperationResult
 from toloka2MediaServer.utils.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
 logger = logging.getLogger(__name__)
 
-def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
+def process_torrent(client: BittorrentClient, torrent, title: Title, operation_result: OperationResult, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
     title.publish_date = torrent.date if new else torrent.registered_date
     
@@ -92,20 +93,35 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, new=False):
         client.recheck_torrent(torrent_hashes=title.hash)
         client.resume_torrent(torrent_hashes=title.hash)
         
-    update_config(config, title.code_name)    
-    #qbt_client.auth_log_out() logout from qbit session TBD
+    update_config(config, title.code_name)
     
-def update(client: BittorrentClient, title: Title, force: bool):
+    return operation_result    
+    
+def update(client: BittorrentClient, title: Title, force: bool, operation_result: OperationResult):
+    operation_result.titles_references.append(title)
+    if title == None:
+        operation_result.operation_logs.append("Title not found")
+        return operation_result
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{title.guid.strip('"')}")
+    operation_result.torrent_references.append(torrent)
     if title.publish_date not in torrent.registered_date:
-        logger.info(f"Date is different! : {torrent.name}")
+        message = f"Date is different! : {torrent.name}"
+        operation_result.operation_logs.append(message)
+        logger.info(message)
         if not force:
             client.delete_torrent(delete_files=False, torrent_hashes=title.hash)
-        process_torrent(client, torrent, title)
+        operation_result = process_torrent(client, torrent, title, operation_result)
     else:
-        logger.info(f"Update not required! : {torrent.name}")
+        message = f"Update not required! : {torrent.name}"
+        operation_result.operation_logs.append(message)
+        logger.info(message)
+        
+    return operation_result
 
-def add(client: BittorrentClient, torrent, title: Title):
-
-    process_torrent(client, torrent, title=title, new=True)
+def add(client: BittorrentClient, torrent, title: Title, operation_result: OperationResult):
+    operation_result.titles_references.append(title)
+    operation_result.torrent_references.append(torrent)
+    operation_result = process_torrent(client, torrent, title=title, operation_result=operation_result, new=True)
     client.end_session()
+    
+    return operation_result

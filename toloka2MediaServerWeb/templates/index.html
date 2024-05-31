@@ -19,7 +19,6 @@
             background: white;
             border: 1px solid #ccc;
             border-radius: 0.25rem;
-            width: 100%
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             z-index: 1000;
         }
@@ -30,22 +29,89 @@
     </style>
 </head>
 <body>
+    {% if output  %}
+    <div class="container mt-5">
+        <div class="card alert {{ 'alert-success' if output.response_code == 'SUCCESS' else 'alert-danger' if output.response_code == 'FAILURE' else 'alert-warning' }}" >
+            <div class="card-body">
+                <h5 class="card-title">Operation Type: {{ output.operation_type.replace('_', ' ').title() }}</h5>
+                <p class="card-text">Response Code: <span class="badge {{ 'bg-success' if output.response_code == 'SUCCESS' else 'bg-danger' if output.response_code == 'FAILURE' else 'bg-warning' }}">{{ output.response_code }}</span></p>
+                <p class="card-text">Start Time: {{ output.start_time }}</p>
+                <p class="card-text">End Time: {{ output.end_time }}</p>
+
+                <!-- Titles References Accordion -->
+                <div class="accordion" id="TitlesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="TitlesHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#TitlesCollapse" aria-expanded="false" aria-controls="TitlesCollapse">
+                                Titles References
+                            </button>
+                        </h2>
+                        <div id="TitlesCollapse" class="accordion-collapse collapse" aria-labelledby="TitlesHeading">
+                            <div class="accordion-body">
+                                <ul class="list-group">
+                                    {% for title in output.titles_references %}
+                                    <li class="list-group-item">
+                                        {{ title }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Torrent References Accordion -->
+                <div class="accordion  mt-3" id="torrentAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="torrentHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#torrentCollapse" aria-expanded="false" aria-controls="torrentCollapse">
+                                Torrent References
+                            </button>
+                        </h2>
+                        <div id="torrentCollapse" class="accordion-collapse collapse" aria-labelledby="torrentHeading">
+                            <div class="accordion-body">
+                                <ul class="list-group">
+                                    {% for torrent in output.torrent_references %}
+                                    <li class="list-group-item">
+                                        {{ torrent }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operation Logs Accordion -->
+                <div class="accordion mt-3" id="logsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="logsHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#logsCollapse" aria-expanded="false" aria-controls="logsCollapse">
+                                Operation Logs
+                            </button>
+                        </h2>
+                        <div id="logsCollapse" class="accordion-collapse collapse" aria-labelledby="logsHeading">
+                            <div class="accordion-body">
+                                <ul class="list-group">
+                                    {% for log in output.operation_logs %}
+                                    <li class="list-group-item">{{ log }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <p class="mb-0">Create an issue on github if something wrong.</p>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
     <div class="container mt-5">
         <h1 class="mb-4">Toloka2MediaServer</h1>
-
         <div class="row">
-            {% if output  %}
-            <div class="col-md-12">
-                <div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">Status</h4>
-                    <p>{{ output  }}</p>
-                    <hr>
-                    <p class="mb-0">Create an issue on github if something wrong.</p>
-                </div>
-            </div>
-            {% endif %}
-           
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
@@ -145,10 +211,10 @@
                                 <i class="bi bi-arrow-clockwise"></i> Update
                             </button>
                         </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
     </div>
     <div class="container mt-5">
         <table class="table table-dark table-hover">
