@@ -77,3 +77,14 @@ def update_releases(args, logger, operation_result=None):
     #could be changed to some configuration, as not so required for small list
         time.sleep(application_config.wait_time)
         update_release(args, config, logger, operation_result)
+        
+
+def search_torrents(args, logger, operation_result=None):
+    torrents = toloka.search(args)
+    
+    return torrents
+
+def get_torrent(args, logger, operation_result=None):
+    torrent = toloka.get_torrent(f"{toloka.toloka_url}/{args}")
+    
+    return torrent

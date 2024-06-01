@@ -74,7 +74,37 @@ def get_titles():
     response = jsonify(sections)
 
     # Return the JSON response
-    return response 
+    return response
+
+@app.route('/get_torrents', methods=['GET'])
+def get_torrents():
+    # Extract the search parameter from the URL query string
+    search_query = request.args.get('query', default=None, type=str)
+    
+    if search_query:
+        # Convert data to JSON format
+        torrents = toloka2MediaServer.main_logic.search_torrents(search_query, logger)
+        response = jsonify(torrents)
+
+        # Return the JSON response
+        return response, 200
+    else:
+        return []
+
+@app.route('/get_torrent', methods=['GET'])
+def get_torrent():
+    # Extract the search parameter from the URL query string
+    id = request.args.get('id', default=None, type=str)
+    
+    if id:
+        # Convert data to JSON format
+        torrent = toloka2MediaServer.main_logic.get_torrent(id, logger)
+        response = jsonify(torrent)
+
+        # Return the JSON response
+        return response, 200
+    else:
+        return []
 
 @app.route('/add_release', methods=['POST'])
 def add_release():
