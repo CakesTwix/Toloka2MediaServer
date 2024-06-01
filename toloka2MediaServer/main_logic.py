@@ -15,7 +15,7 @@ client = dynamic_client_init()
 @operation_tracker(OperationType.ADD_BY_URL)  
 def add_release_by_url(args, logger, operation_result=None):
     title = Title()
-    title.episode_index = args.index
+    title.episode_index = args.index - 1
     title.adjusted_episode_number = args.correction
     proposed_url = args.url
     proposed_guid = f"t{re.search(r't(\d+)', proposed_url).group(1)}"
