@@ -1,36 +1,248 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toloka2MediaServer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        .card {
-            margin-top: 20px;
-        }
-        .full-width-button {
-            width: 100%;
-        }
-        .result-list {
-            position: absolute;
-            margin-top: 2px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 0.25rem;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        .list-group-item {
-            display: flex;
-            justify-content: space-between;
-        }
-    </style>
+    <link href="static/styles.css" rel="stylesheet">
+    <script src="static/color-modes.js"></script>
 </head>
-<body>
-    {% if output  %}
-    <div class="container mt-5">
+<body class="d-flex flex-column h-100">
+    <!-- Theme switcher -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+        <symbol id="check2" viewBox="0 0 16 16">
+            <path
+                d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z">
+            </path>
+        </symbol>
+        <symbol id="circle-half" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+        </symbol>
+        <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+            <path
+                d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z">
+            </path>
+            <path
+                d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z">
+            </path>
+        </symbol>
+        <symbol id="sun-fill" viewBox="0 0 16 16">
+            <path
+                d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z">
+            </path>
+        </symbol>
+    </svg>
+    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+        <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
+            aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (dark)">
+            <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
+                <use href="#moon-stars-fill"></use>
+            </svg>
+            <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text" style="">
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
+                    aria-pressed="false">
+                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
+                        <use href="#sun-fill"></use>
+                    </svg>
+                    Light
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark"
+                    aria-pressed="true">
+                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
+                        <use href="#moon-stars-fill"></use>
+                    </svg>
+                    Dark
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto"
+                    aria-pressed="false">
+                    <svg class="bi me-2 opacity-50" width="1em" height="1em">
+                        <use href="#circle-half"></use>
+                    </svg>
+                    Auto
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+        </ul>
+    </div>
+    <!-- Theme switcher -->
+
+    <!-- Fixed navbar -->
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Toloka2MediaServer</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" aria-disabled="true">Settings</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+<!-- Begin page content -->
+<main class="flex-shrink-0">
+
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Side content -->
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Get Index</h5>
+                            <label for="numberInput">Enter Text:</label>
+                            <input type="text" class="form-control" id="numberInput" oninput="extractNumbers()" placeholder="[Inari Dub] Arknights Touin Kiro S01 E09 (1080) (UA).mkv">
+                            <div id="result" class="result-list list-group"></div>
+                        </div>
+                    </div>
+                    <script>
+                        function extractNumbers() {
+                            const input = document.getElementById('numberInput').value;
+                            const numbers = input.split('').map((ch) => (ch >= '0' && ch <= '9') ? ch : ' ').join('').trim().split(/\s+/);
+                            const resultList = document.getElementById('result');
+                            resultList.innerHTML = '';
+                
+                            numbers.forEach((number, index) => {
+                                if (number !== '') {
+                                    const item = document.createElement('div');
+                                    item.className = 'list-group-item';
+                                    item.textContent = `Index: ${index+1}, Number: ${number}`;
+                                    resultList.appendChild(item);
+                                }
+                            });
+                
+                            if (numbers.join('').length === 0) {
+                                resultList.style.display = 'none';
+                            } else {
+                                resultList.style.display = 'block';
+                            }
+                        }
+    
+                        document.addEventListener("DOMContentLoaded", function() {
+                const forms = document.querySelectorAll('form');
+    
+                forms.forEach(form => {
+                    form.addEventListener('submit', function(event) {
+                        document.querySelectorAll('form button').forEach(button => {
+                            button.disabled = true;
+                        });
+                    });
+                });
+            });
+                    </script>
+                </div>
+                <!-- Section 1 -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Add by toloka URL</h5>
+                            <form action="/add_release" method="post">
+                                <div class="mb-3">
+                                    <label for="url" class="form-label">URL</label>
+                                    <input type="url" class="form-control" id="url" placeholder="https://toloka.to/t678205" name="url" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="title" placeholder="Arknights (2022)" name="title" required>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col">
+                                        <label for="season" class="form-label">Season</label>
+                                        <input type="number" class="form-control" id="season" placeholder="2" name="season" required>
+                                    </div>
+                                    <div class="col">
+                                        <label for="index" class="form-label">Index</label>
+                                        <input type="number" class="form-control" id="index" placeholder="2" name="index" required>
+                                    </div>
+                                    <div class="col">
+                                        <label for="correction" class="form-label">Correction</label>
+                                        <input type="number" class="form-control" id="correction" placeholder="-8" name="correction" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary full-width-button mt-3">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                                        <!-- Update all -->
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Update all</h5>
+                                                <p class="card-text">Total: {{ codenames|length }}</p>
+                                                <form action="/update_all_releases" method="post">
+                                                    <button class="btn btn-primary full-width-button">
+                                                        <i class="bi bi-arrow-clockwise"></i> Update
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                </div>
+                <!-- Section 2 and 3 -->
+                <div class="col-md-8">
+
+                    <!-- Update by codename -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Update by codename</h5>
+                            <form action="/update_release" method="post">
+                                <div class="mb-3">
+                                    <label for="codename" class="form-label">Codename</label>
+                                    <input type="text" class="form-control" id="codename" placeholder="Enter codename" name="codename" list="codename-list" required>
+                                    <datalist id="codename-list">
+                                        {% for codename in codenames %}
+                                        <option value="{{ codename }}">
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+                                <button class="btn btn-primary full-width-button">
+                                    <i class="bi bi-arrow-clockwise"></i> Update
+                                </button>
+                            </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <!-- End of Left Side content -->
+
+        <!-- Right Side content -->
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-12">
+                    {% if output  %}
         <div class="card alert {{ 'alert-success' if output.response_code == 'SUCCESS' else 'alert-danger' if output.response_code == 'FAILURE' else 'alert-warning' }}" >
             <div class="card-body">
                 <h5 class="card-title">Operation Type: {{ output.operation_type.replace('_', ' ').title() }}</h5>
@@ -106,153 +318,56 @@
                 <p class="mb-0">Create an issue on github if something wrong.</p>
             </div>
         </div>
-    </div>
 {% endif %}
-
-    <div class="container mt-5">
-        <h1 class="mb-4">Toloka2MediaServer</h1>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Get Index</h5>
-                        <label for="numberInput">Enter Text:</label>
-                        <input type="text" class="form-control" id="numberInput" oninput="extractNumbers()" placeholder="[Inari Dub] Arknights Touin Kiro S01 E09 (1080) (UA).mkv">
-                        <div id="result" class="result-list list-group"></div>
-                    </div>
                 </div>
-                <script>
-                    function extractNumbers() {
-                        const input = document.getElementById('numberInput').value;
-                        const numbers = input.split('').map((ch) => (ch >= '0' && ch <= '9') ? ch : ' ').join('').trim().split(/\s+/);
-                        const resultList = document.getElementById('result');
-                        resultList.innerHTML = '';
-            
-                        numbers.forEach((number, index) => {
-                            if (number !== '') {
-                                const item = document.createElement('div');
-                                item.className = 'list-group-item';
-                                item.textContent = `Index: ${index+1}, Number: ${number}`;
-                                resultList.appendChild(item);
-                            }
-                        });
-            
-                        if (numbers.join('').length === 0) {
-                            resultList.style.display = 'none';
-                        } else {
-                            resultList.style.display = 'block';
-                        }
-                    }
-
-                    document.addEventListener("DOMContentLoaded", function() {
-            const forms = document.querySelectorAll('form');
-
-            forms.forEach(form => {
-                form.addEventListener('submit', function(event) {
-                    document.querySelectorAll('form button').forEach(button => {
-                        button.disabled = true;
-                    });
-                });
-            });
-        });
-                </script>
-            </div>
-            <!-- Section 1 -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Add by toloka URL</h5>
-                        <form action="/add_release" method="post">
-                            <div class="mb-3">
-                                <label for="url" class="form-label">URL</label>
-                                <input type="url" class="form-control" id="url" placeholder="https://toloka.to/t678205" name="url" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Title</label>
-                                <input type="text" class="form-control" id="title" placeholder="Arknights (2022)" name="title" required>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col">
-                                    <label for="season" class="form-label">Season</label>
-                                    <input type="number" class="form-control" id="season" placeholder="2" name="season" required>
-                                </div>
-                                <div class="col">
-                                    <label for="index" class="form-label">Index</label>
-                                    <input type="number" class="form-control" id="index" placeholder="2" name="index" required>
-                                </div>
-                                <div class="col">
-                                    <label for="correction" class="form-label">Correction</label>
-                                    <input type="number" class="form-control" id="correction" placeholder="-8" name="correction" required>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary full-width-button mt-3">Submit</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 2 and 3 -->
-            <div class="col-md-6">
-                <!-- Update all -->
-                <div class="card">
-                    <div class="card-body"  style="min-height: 148px;">
-                        <h5 class="card-title">Update all</h5>
-                        <p class="card-text">Total: {{ codenames|length }}</p>
-                        <form action="/update_all_releases" method="post">
-                            <button class="btn btn-primary full-width-button">
-                                <i class="bi bi-arrow-clockwise"></i> Update
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <!-- Update by codename -->
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Update by codename</h5>
-                        <form action="/update_release" method="post">
-                            <div class="mb-3">
-                                <label for="codename" class="form-label">Codename</label>
-                                <input type="text" class="form-control" id="codename" placeholder="Enter codename" name="codename" list="codename-list" required>
-                                <datalist id="codename-list">
-                                    {% for codename in codenames %}
-                                    <option value="{{ codename }}">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Added Titles</h5>
+                            <table class="table table-dark table-hover">
+                                <thead>
+                                    <tr>
+                                        {% for key, name in columns.items() %}
+                                        <th scope="col">{{ name }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in data %}
+                                    <tr>
+                                        {% for key in columns %}
+                                        <td>
+                                            {% if key == 'guid' %}
+                                            <a href="https://toloka.to/{{ item[key] }}">{{ item[key] }}</a>
+                                            {% else %}
+                                            {{ item[key] }}
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
                                     {% endfor %}
-                                </datalist>
-                            </div>
-                            <button class="btn btn-primary full-width-button">
-                                <i class="bi bi-arrow-clockwise"></i> Update
-                            </button>
-                        </form>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+
                 </div>
             </div>
+        </div>
+        <!-- End of Right Side content -->
     </div>
-    <div class="container mt-5">
-        <table class="table table-dark table-hover">
-            <thead>
-                <tr>
-                    {% for key, name in columns.items() %}
-                    <th scope="col">{{ name }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in data %}
-                <tr>
-                    {% for key in columns %}
-                    <td>
-                        {% if key == 'guid' %}
-                        <a href="https://toloka.to/{{ item[key] }}">{{ item[key] }}</a>
-                        {% else %}
-                        {{ item[key] }}
-                        {% endif %}
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+
+</div>
+
+</main>
+    <footer class="footer mt-auto py-3 bg-body-tertiary">
+        <div class="container">
+            <div class="text-center p-3">
+    Project GitHub: <a href="https://github.com/maksii/Toloka2MediaServer">Toloka2MediaServer</a><br>
+    Powered by: <a href="https://github.com/maksii/toloka2python">Toloka2Python</a>
+</div>
+</div>
+    </footer>
+
 </body>
 </html>
