@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 def process_torrent(client: BittorrentClient, torrent, title: Title, operation_result: OperationResult, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
-    title.publish_date = torrent.date if new else torrent.registered_date
+    title.publish_date = torrent.date
     
-    tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.download_link if new else torrent.torrent_url}")
+    tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.torrent_url}")
         
     category = app[application_config.client]["category"]
     tag = app[application_config.client]["tag"]
@@ -104,7 +104,7 @@ def update(client: BittorrentClient, title: Title, force: bool, operation_result
         return operation_result
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{title.guid.strip('"')}")
     operation_result.torrent_references.append(torrent)
-    if title.publish_date not in torrent.registered_date:
+    if title.publish_date not in torrent.date:
         message = f"Date is different! : {torrent.name}"
         operation_result.operation_logs.append(message)
         logger.info(message)

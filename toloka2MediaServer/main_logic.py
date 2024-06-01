@@ -20,12 +20,6 @@ def add_release_by_url(args, logger, operation_result=None):
     proposed_url = args.url
     proposed_guid = f"t{re.search(r't(\d+)', proposed_url).group(1)}"
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{proposed_guid}")
-    #temporary fix, as get_torrent returns other fields
-    search_torrent = toloka.search(torrent.name)
-    matched_index = 0
-    for index, item in enumerate(search_torrent[:10]):
-        matched_index = index if item.url == proposed_guid else 0
-    torrent = search_torrent[matched_index]
     suggested_name, suggested_codename = extract_torrent_details(torrent.name)
     title.code_name = suggested_codename
     # Collect additional data
