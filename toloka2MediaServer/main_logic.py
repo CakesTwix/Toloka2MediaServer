@@ -88,3 +88,11 @@ def get_torrent(args, logger, operation_result=None):
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{args}")
     
     return torrent
+
+def add_torrent(args, logger, operation_result=None):
+    #TBD placeholder for now
+    tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{args}")
+    
+    client.add_torrent(torrents=tolokaTorrentFile, category="", tags=[""], is_paused=False, download_dir="")
+    
+    return ""

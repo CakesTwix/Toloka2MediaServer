@@ -106,6 +106,21 @@ def get_torrent():
     else:
         return []
 
+@app.route('/add_torrent', methods=['GET'])
+def add_torrent():
+    # Extract the search parameter from the URL query string
+    id = request.args.get('id', default=None, type=str)
+    
+    if id:
+        # Convert data to JSON format
+        toloka2MediaServer.main_logic.add_torrent(id, logger)
+        
+
+        # Return the JSON response
+        return [], 200
+    else:
+        return []
+
 @app.route('/add_release', methods=['POST'])
 def add_release():
     # Process the URL to add release

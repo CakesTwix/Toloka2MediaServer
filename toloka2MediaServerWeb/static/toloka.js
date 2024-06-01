@@ -6,7 +6,8 @@ $(document).ready(function () {
     $('.d-flex[role="search"]').on('submit', function (e) {
         e.preventDefault();
         var query = $(this).find('input[type="search"]').val();
-        
+        const bsOffcanvas = new bootstrap.Offcanvas('#offcanvasTopSearchResults')
+        bsOffcanvas.toggle()
         if (!initialized) {
             // Initialize DataTable
             table = $('#torrentTable').DataTable({
@@ -43,9 +44,9 @@ $(document).ready(function () {
                     { data: "verify", title: 'verify', visible: false },
                     { data: null, title: 'Actions', orderable: false, render: function(data, type, row) {
                         return `
-                            <button class="btn btn-outline-warning" disabled><span class="bi bi-download" aria-hidden="true"></span><span class="visually-hidden" role="status">Direct Download</span></button>
-                            <button class="btn btn-outline-warning" disabled><span class="bi bi-cloud-download" aria-hidden="true"></span><span class="visually-hidden" role="status">Add to client</span></button>
-                            <button class="btn btn-outline-primary" disabled><span class="bi bi-chevron-double-left" aria-hidden="true"></span><span class="visually-hidden" role="status">Copy Values</span></button>
+                            <button class="btn btn-outline-warning action-download"><span class="bi bi-download" aria-hidden="true"></span><span class="visually-hidden" role="status">Direct Download</span></button>
+                            <button class="btn btn-outline-warning action-add"><span class="bi bi-cloud-download" aria-hidden="true"></span><span class="visually-hidden" role="status">Add to client</span></button>
+                            <button class="btn btn-outline-primary action-copy"><span class="bi bi-chevron-double-left" aria-hidden="true"></span><span class="visually-hidden" role="status">Copy Values</span></button>
                         `;
                     }, visible: true }
                 ],
@@ -57,10 +58,7 @@ $(document).ready(function () {
                             {
                                 extend: 'colvis',
                                 postfixButtons: ['colvisRestore']
-                            },
-                            { text: 'Refresh', action: function ( e, dt, node, config ) {
-                                dt.ajax.reload();
-                            }}
+                            }
                         ]
                     }
                 }
@@ -84,8 +82,28 @@ $(document).ready(function () {
                         success: function (detail) {
                             var childData = formatDetail(detail, data);
                             row.child(childData).show();
+                            tr.data('childData', detail);
                         }
                     });
+                }
+            });
+
+            $('#torrentTable tbody').on('click', '.action-download, .action-copy, .action-add', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                var data = row.data();
+                var childData = tr.data('childData');
+            
+                switch (true) {
+                    case $(this).hasClass('action-download'):
+                        performDownloadAction(data, childData);
+                        break;
+                    case $(this).hasClass('action-copy'):
+                        performCopyAction(data, childData);
+                        break;
+                    case $(this).hasClass('action-add'):
+                        performAddAction(data, childData);
+                        break;
                 }
             });
 
@@ -95,6 +113,7 @@ $(document).ready(function () {
             table.ajax.url('/get_torrents?query=' + query).load();
         }
     });
+    
     function formatLoading() {
         return '<div class="d-flex justify-content-center">' +
                '<div class="spinner-border" role="status">' +
@@ -120,7 +139,7 @@ $(document).ready(function () {
                     <div class="card">
                         <div class="row g-0">
                             <div class="col-md-2">
-                                <img src="${detail.thumbnail}" class="card-img-top" alt="...">
+                                <img src="${detail.img}" class="card-img-top" alt="...">
                                 <div class="d-grid gap-2">
                                     <button type="button" class="btn btn-primary position-relative" disabled>
                                         ${detail.size}
@@ -150,5 +169,58 @@ $(document).ready(function () {
                 </div>
             </div>
         `;
+    }
+
+    const bsOffcanvas = new bootstrap.Offcanvas('#offcanvasTopSearchResults')
+
+    function performAddAction(rowData, childData) {
+        console.log('Add action triggered', rowData, childData);
+
+        $.ajax({
+            url: '/add_torrent?id=' + rowData.torrent_url,
+            type: 'GET',
+            success: function (detail) {
+                console.log('Not implemented YET', detail);
+            }
+        });
+
+        document.querySelector('#offcanvasTopSearchResults > div.offcanvas-header > button').click()
+    }
+    
+    function performCopyAction(rowData, childData) {
+        console.log('Copy action triggered', rowData, childData);
+        bsOffcanvas.hide()
+
+        document.querySelector('#title').value = rowData.name;
+        document.querySelector('#url').value  = `https://toloka.to/${rowData.url}`;
+        if(childData != null)
+            {
+                var input = document.querySelector('#numberInput');
+                input.value = childData.files[0].file_name
+
+                const event = new Event('input', {
+                    bubbles: true,
+                    cancelable: true,
+                });
+                input.dispatchEvent(event);
+            }
+        document.querySelector('#offcanvasTopSearchResults > div.offcanvas-header > button').click()
+    }
+    
+    function performDownloadAction(rowData, childData) {
+        console.log('Download action triggered', rowData, childData);
+        var url = `https://toloka.to/${rowData.torrent_url}`
+
+        downloadFile(url);
+        document.querySelector('#offcanvasTopSearchResults > div.offcanvas-header > button').click()
+    }
+
+    function downloadFile(url) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = true;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 });
