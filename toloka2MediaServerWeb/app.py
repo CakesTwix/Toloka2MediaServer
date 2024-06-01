@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, jsonify, request, render_template, redirect, url_for, session
 import sys
 
 import toloka2MediaServer.config
@@ -57,6 +57,24 @@ def index():
     }
     output = session.pop('output', {})   
     return render_template('index.html', data=data, columns=columns, codenames=codenames, output=output)
+
+@app.route('/get_titles', methods=['GET'])
+def get_titles():
+    titles = toloka2MediaServer.config.update_titles()
+    
+    # Extract sections from the ConfigParser object
+    sections = {}
+    for section in titles.sections():
+        options = {}
+        for option in titles.options(section):
+            options[option] = titles.get(section, option)
+        sections[section] = options
+
+    # Convert the sections data to JSON format
+    response = jsonify(sections)
+
+    # Return the JSON response
+    return response 
 
 @app.route('/add_release', methods=['POST'])
 def add_release():
