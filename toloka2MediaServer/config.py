@@ -13,13 +13,13 @@ def load_configurations(app_config_path=None, title_config_path=None):
         title_config_path = os.path.join(os.getcwd(), 'data', 'titles.ini')
 
     app_config = configparser.ConfigParser()
-    title_config = configparser.ConfigParser()
+    titles_config = configparser.ConfigParser()
     app_config.read(app_config_path)
-    title_config.read(title_config_path)
-    return app_config, title_config
+    titles_config.read(title_config_path)
+    return app_config, titles_config
 
 # Example usage of load_configurations
-app_config, title_config = load_configurations()
+app_config, titles_config = load_configurations()
 
 application_config = config_to_app(app_config)
 

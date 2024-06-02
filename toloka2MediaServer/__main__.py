@@ -2,19 +2,17 @@
 import sys
 from toloka2MediaServer.args_parser import get_parser
 from toloka2MediaServer.logger_setup import setup_logging
-from toloka2MediaServer.config import load_configurations, app
+from toloka2MediaServer.config import app_config
 
 from toloka2MediaServer.clients.dynamic import dynamic_client_init
 from toloka2MediaServer.main_logic import add_release_by_name, add_release_by_url, update_release_by_name, update_releases
 from toloka2MediaServer.utils.general import get_numbers
 
-# Load configurations
-app_config, title_config = load_configurations()
 client = dynamic_client_init()
 # Initialize the client based on configuration
 parser = get_parser()
 args = parser.parse_args()
-logger = setup_logging(app["Python"]["logging"])
+logger = setup_logging(app_config["Python"]["logging"])
 logger.info("------------------------------------------")
 
 def main():

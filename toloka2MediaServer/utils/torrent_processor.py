@@ -4,7 +4,7 @@ import time
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
 
-from toloka2MediaServer.config import toloka, app, application_config, update_config
+from toloka2MediaServer.config import toloka, app_config, application_config, update_config
 from toloka2MediaServer.models.operation_result import OperationResult
 from toloka2MediaServer.models.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
@@ -17,8 +17,8 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, operation_r
     
     tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.torrent_url}")
         
-    category = app[application_config.client]["category"]
-    tag = app[application_config.client]["tag"]
+    category = app_config[application_config.client]["category"]
+    tag = app_config[application_config.client]["tag"]
     
     add_torrent_response = client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True, download_dir=title.download_dir)
     time.sleep(application_config.client_wait_time)

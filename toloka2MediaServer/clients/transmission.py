@@ -4,7 +4,7 @@ from transmission_rpc import Client
 from transmission_rpc.error import TransmissionConnectError
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
-from toloka2MediaServer.config import app, application_config
+from toloka2MediaServer.config import app_config, application_config
 
 # Set Logging
 logger = logging.getLogger(__name__)
@@ -13,12 +13,12 @@ class TransmissionClient(BittorrentClient):
         """Initialize and log in to the Transmission client."""
         try:
             self.api_client = Client(
-                host=app[application_config.client]["host"],
-                port=app[application_config.client]["port"],
-                username=app[application_config.client]["username"],
-                password=app[application_config.client]["password"],
-                path=app[application_config.client]["rpc"],
-                protocol=app[application_config.client]["protocol"],
+                host=app_config[application_config.client]["host"],
+                port=app_config[application_config.client]["port"],
+                username=app_config[application_config.client]["username"],
+                password=app_config[application_config.client]["password"],
+                path=app_config[application_config.client]["rpc"],
+                protocol=app_config[application_config.client]["protocol"],
             )
             logger.info(f"Connected to: {application_config.client}")
         except TransmissionConnectError:

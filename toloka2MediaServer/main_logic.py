@@ -8,7 +8,7 @@ from toloka2MediaServer.utils.operation_decorator import operation_tracker
 from toloka2MediaServer.models.title import Title, config_to_title
 from toloka2MediaServer.utils.torrent_processor import add, update
 
-from toloka2MediaServer.config import titles, toloka, application_config, update_titles
+from toloka2MediaServer.config import titles_config, toloka, application_config, update_titles
 
 client = dynamic_client_init()
 
@@ -74,7 +74,7 @@ def update_release(args, codename, logger, operation_result):
 
 @operation_tracker(OperationType.UPDATE_ALL)   
 def update_releases(args, logger, operation_result=None):
-    for config in titles.sections():
+    for config in titles_config.sections():
     #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
     #could be changed to some configuration, as not so required for small list
         time.sleep(application_config.wait_time)
