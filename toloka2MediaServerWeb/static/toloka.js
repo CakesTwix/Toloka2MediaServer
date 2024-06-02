@@ -40,7 +40,9 @@ $(document).ready(function () {
                     { data: "size", title: 'size', visible: false },
                     { data: "status", title: 'status', visible: false },
                     { data: "torrent_url", title: 'torrent_url', visible: false },
-                    { data: "url", title: 'url', visible: false },
+                    { data: "url", title: 'url', render: function(data, type, row) {
+                        return `<a href="https://toloka.to/${data}">${data}</a>`;
+                    }, visible: true },
                     { data: "verify", title: 'verify', visible: false },
                     { data: null, title: 'Actions', orderable: false, render: function(data, type, row) {
                         return `
@@ -139,7 +141,7 @@ $(document).ready(function () {
                     <div class="card">
                         <div class="row g-0">
                             <div class="col-md-2">
-                                <img src="${detail.img}" class="card-img-top" alt="...">
+                                <img src="image/?url=${detail.img}" class="card-img-top" alt="...">
                                 <div class="d-grid gap-2">
                                     <button type="button" class="btn btn-primary position-relative" disabled>
                                         ${detail.size}
@@ -158,6 +160,7 @@ $(document).ready(function () {
                                 <div class="card-body">
                                     <h5 class="card-title">${detail.author}</h5>
                                     <p class="card-text">${detail.name}</p>
+                                    <p class="card-text">${detail.description}</p>
                                     <p class="card-text"><small class="text-body-secondary">Last updated ${detail.date}</small></p>
                                 </div>
                             </div>

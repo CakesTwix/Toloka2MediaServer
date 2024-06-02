@@ -164,3 +164,4 @@ cython_debug/
 toloka2MediaServer/data/*
 !toloka2MediaServer/data/titles-example.ini
 !toloka2MediaServer/data/app-example.ini
+cookie.txt

@@ -61,13 +61,15 @@ def add_release_by_name(args, logger, operation_result=None):
 @operation_tracker(OperationType.UPDATE_BY_CODE)      
 def update_release_by_name(args, codename, logger, operation_result=None):
     operation_result = update_release(args, codename, logger, operation_result)
+    client.end_session()
+    return operation_result
 
 def update_release(args, codename, logger, operation_result):
     #update to be sure, that we always work with latest version of titles
     titles = update_titles()
     title_from_config = config_to_title(titles, codename)
     operation_result = update(client, title_from_config, args.force, operation_result)
-    client.end_session()
+
     return operation_result
 
 @operation_tracker(OperationType.UPDATE_ALL)   
@@ -76,8 +78,9 @@ def update_releases(args, logger, operation_result=None):
     #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
     #could be changed to some configuration, as not so required for small list
         time.sleep(application_config.wait_time)
-        update_release(args, config, logger, operation_result)
-        
+        operation_result = update_release(args, config, logger, operation_result)
+    client.end_session()
+    return operation_result    
 
 def search_torrents(args, logger, operation_result=None):
     torrents = toloka.search(args)

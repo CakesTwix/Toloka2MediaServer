@@ -1,5 +1,6 @@
 import logging
-from flask import Flask, jsonify, request, render_template, redirect, url_for, session
+from flask import Flask, jsonify, request, render_template, redirect, url_for, session, Response
+import requests
 import sys
 
 import toloka2MediaServer.config
@@ -183,3 +184,29 @@ def serialize_operation_result(operation_result):
         "start_time": operation_result.start_time.isoformat() if operation_result.start_time else None,
         "end_time": operation_result.end_time.isoformat() if operation_result.end_time else None
     }
+
+@app.route('/image/')
+def proxy_image():
+    #Get the full URL from the query parameter
+    url = request.args.get('url')
+    if not url:
+        return "No URL provided", 400
+
+    # Normalize the URL
+    if url.startswith('//'):
+        url = 'https:' + url  # Assume https if protocol is missing
+    elif not url.startswith(('http://', 'https://')):
+        url = 'https://' + url  # Assume https if only hostname is provided
+        
+    # Send a GET request to the image URL
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    }
+    response = requests.get(url, headers=headers, stream=True)
+
+    # Check if the request was successful
+    if response.status_code != 200:
+        return "Failed to fetch image", response.status_code
+
+    # Stream the response content directly to the client
+    return Response(response.iter_content(chunk_size=1024), content_type=response.headers['Content-Type'])
