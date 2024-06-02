@@ -1,10 +1,9 @@
 import logging
-from toloka2MediaServer.config import application_config
 
 # Set Logging
 logger = logging.getLogger(__name__)
 
-def dynamic_client_init():
+def dynamic_client_init(application_config):
     """Dynamically import and initialize the torrent client based on the selected client in config."""
     client_module_name = f"toloka2MediaServer.clients.{application_config.client.lower()}"
     client_class_name = f"{application_config.client.capitalize()}Client"

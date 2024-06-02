@@ -1,19 +1,14 @@
 from datetime import datetime
 import re
 import time
-from toloka2MediaServer.clients.dynamic import dynamic_client_init
 from toloka2MediaServer.models.operation_result import OperationResult, OperationType, ResponseCode
 from toloka2MediaServer.utils.general import extract_torrent_details
 from toloka2MediaServer.utils.operation_decorator import operation_tracker
 from toloka2MediaServer.models.title import Title, config_to_title
 from toloka2MediaServer.utils.torrent_processor import add, update
 
-from toloka2MediaServer.config import titles_config, toloka, application_config, update_titles
-
-client = dynamic_client_init()
-
 @operation_tracker(OperationType.ADD_BY_URL)  
-def add_release_by_url(args, logger, operation_result=None):
+def add_release_by_url(args, logger, toloka, client, application_config, titles_config=None, operation_result=None):
     title = Title()
     title.episode_index = args.index - 1
     title.adjusted_episode_number = args.correction
@@ -35,7 +30,7 @@ def add_release_by_url(args, logger, operation_result=None):
     operation_result = add(client, torrent, title, operation_result)
 
 @operation_tracker(OperationType.ADD_BY_CODE)    
-def add_release_by_name(args, logger, operation_result=None):
+def add_release_by_name(args, logger, toloka, client, application_config, titles_config=None, operation_result=None):
     title = Title()
     torrent = toloka.search(args.add)
     if not torrent:
@@ -59,40 +54,34 @@ def add_release_by_name(args, logger, operation_result=None):
     operation_result = add(client, torrent, title, operation_result)
 
 @operation_tracker(OperationType.UPDATE_BY_CODE)      
-def update_release_by_name(args, codename, logger, operation_result=None):
+def update_release_by_name(args, codename, logger, toloka, client, application_config=None, titles_config=None, operation_result=None):
     operation_result = update_release(args, codename, logger, operation_result)
     client.end_session()
-    return operation_result
 
-def update_release(args, codename, logger, operation_result):
-    #update to be sure, that we always work with latest version of titles
-    titles = update_titles()
-    title_from_config = config_to_title(titles, codename)
+def update_release(args, codename, logger, toloka, client, application_config, titles_config, operation_result):
+    title_from_config = config_to_title(titles_config, codename)
     operation_result = update(client, title_from_config, args.force, operation_result)
 
-    return operation_result
-
 @operation_tracker(OperationType.UPDATE_ALL)   
-def update_releases(args, logger, operation_result=None):
+def update_releases(args, logger, toloka, client, application_config, titles_config=None, operation_result=None):
     for config in titles_config.sections():
     #just to be sure, that we are not ddosing toloka, wait for 10s before each title update, as otherwise cloudflare may block our ip during some rush hrs
     #could be changed to some configuration, as not so required for small list
         time.sleep(application_config.wait_time)
-        operation_result = update_release(args, config, logger, operation_result)
-    client.end_session()
-    return operation_result    
+        operation_result = update_release(args, config, logger, toloka, client, application_config, titles_config, operation_result)
+    client.end_session()  
 
-def search_torrents(args, logger, operation_result=None):
+def search_torrents(args, logger, toloka, client=None, application_config=None, titles_config=None, operation_result=None):
     torrents = toloka.search(args)
     
     return torrents
 
-def get_torrent(args, logger, operation_result=None):
+def get_torrent(args, logger, toloka, client=None, application_config=None, titles_config=None, operation_result=None):
     torrent = toloka.get_torrent(f"{toloka.toloka_url}/{args}")
     
     return torrent
 
-def add_torrent(args, logger, operation_result=None):
+def add_torrent(args, logger, toloka, client, application_config=None, titles_config=None, operation_result=None):
     #TBD placeholder for now
     tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{args}")
     

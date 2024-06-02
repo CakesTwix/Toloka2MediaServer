@@ -4,7 +4,7 @@ from transmission_rpc import Client
 from transmission_rpc.error import TransmissionConnectError
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
-from toloka2MediaServer.config import app_config, application_config
+from toloka2MediaServer.config_parser import app_config, application_config
 
 # Set Logging
 logger = logging.getLogger(__name__)

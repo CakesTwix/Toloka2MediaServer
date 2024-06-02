@@ -3,8 +3,6 @@ import os
 import configparser
 from toloka2python import Toloka
 
-from toloka2MediaServer.models.application import config_to_app
-
 def load_configurations(app_config_path=None, title_config_path=None):
     """Load configuration files with flexibility on path specification."""
     if app_config_path is None:
@@ -18,21 +16,8 @@ def load_configurations(app_config_path=None, title_config_path=None):
     titles_config.read(title_config_path)
     return app_config, titles_config
 
-# Example usage of load_configurations
-app_config, titles_config = load_configurations()
-
-application_config = config_to_app(app_config)
-
-# Initialize Toloka client
-toloka = Toloka(application_config.username, application_config.password)
-
-def update_titles(title_config_path=None):
-    """Update titles from the configuration file."""
-    if title_config_path is None:
-        title_config_path = os.path.join(os.getcwd(), 'data', 'titles.ini')
-    titles = configparser.ConfigParser()
-    titles.read(title_config_path)
-    return titles
+def get_toloka_client(application_config):
+    return Toloka(application_config.username, application_config.password)
 
 def update_config(config, code_name, title_config_path=None):
     """Update configuration file when a new torrent is added."""
