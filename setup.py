@@ -19,6 +19,6 @@ setup(
         'transmission_rpc',
         'qbittorrent-api',
         'requests',
-        'toloka2python @ git+https://github.com/CakesTwix/toloka2python'
+        'toloka2python @ git+https://github.com/maksii/toloka2python'
     ]
 )
