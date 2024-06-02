@@ -64,12 +64,6 @@
             "type": "debugpy",
             "request": "launch",
             "module": "toloka2MediaServer",
-        },
-        {
-            "name": "Python Debugger: Web",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "toloka2MediaServerWeb",
         }
     ]
 }
