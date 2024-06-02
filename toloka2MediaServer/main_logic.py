@@ -5,7 +5,7 @@ from toloka2MediaServer.clients.dynamic import dynamic_client_init
 from toloka2MediaServer.models.operation_result import OperationResult, OperationType, ResponseCode
 from toloka2MediaServer.utils.general import extract_torrent_details
 from toloka2MediaServer.utils.operation_decorator import operation_tracker
-from toloka2MediaServer.utils.title import Title, config_to_title
+from toloka2MediaServer.models.title import Title, config_to_title
 from toloka2MediaServer.utils.torrent_processor import add, update
 
 from toloka2MediaServer.config import titles, toloka, application_config, update_titles

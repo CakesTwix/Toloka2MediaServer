@@ -6,7 +6,7 @@ from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
 
 from toloka2MediaServer.config import toloka, app, application_config, update_config
 from toloka2MediaServer.models.operation_result import OperationResult
-from toloka2MediaServer.utils.title import Title, title_to_config
+from toloka2MediaServer.models.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
 
 logger = logging.getLogger(__name__)
