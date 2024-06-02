@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toloka2MediaServer v2024.06.02.1533</title>
+    <title>Toloka2MediaServer v2024.06.02.1611</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -184,44 +184,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                                        <!-- Update all -->
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Update all</h5>
-                                                <p class="card-text">Total: {{ codenames|length }}</p>
-                                                <form action="/update_all_releases" method="post">
-                                                    <button class="btn btn-primary full-width-button">
-                                                        <i class="bi bi-arrow-clockwise"></i> Update
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                </div>
-                <!-- Section 2 and 3 -->
-                <div class="col-md-8">
-
-                    <!-- Update by codename -->
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Update by codename</h5>
-                            <form action="/update_release" method="post">
-                                <div class="mb-3">
-                                    <label for="codename" class="form-label">Codename</label>
-                                    <input type="text" class="form-control" id="codename" placeholder="Enter codename" name="codename" list="codename-list" required>
-                                    <datalist id="codename-list">
-                                        {% for codename in codenames %}
-                                        <option value="{{ codename }}">
-                                        {% endfor %}
-                                    </datalist>
-                                </div>
-                                <button class="btn btn-primary full-width-button">
-                                    <i class="bi bi-arrow-clockwise"></i> Update
-                                </button>
-                            </form>
-                            </div>
-                        </div>
-                    </div>
                 </div>
         </div>
         <!-- End of Left Side content -->

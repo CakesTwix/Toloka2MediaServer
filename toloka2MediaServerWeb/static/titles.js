@@ -31,7 +31,7 @@ $(document).ready(function() {
                 return `
                     <button class="btn btn-outline-warning" disabled><span class="bi bi-pencil-square" aria-hidden="true"></span><span class="visually-hidden" role="status">Edit</span></button>
                     <button class="btn btn-outline-danger" disabled><span class="bi bi-trash" aria-hidden="true"></span><span class="visually-hidden" role="status">Delete</span></button>
-                    <button class="btn btn-outline-primary" disabled><span class="bi bi-arrow-clockwise" aria-hidden="true"></span><span class="visually-hidden" role="status">Update</span></button>
+                    <button class="btn btn-outline-primary action-update" ><span class="bi bi-arrow-clockwise" aria-hidden="true"></span><span class="visually-hidden" role="status">Update</span></button>
                 `;
             }, visible: true }
         ],
@@ -90,8 +90,21 @@ $(document).ready(function() {
                     {
                         text: 'Update All',
                         className: 'btn btn-primary',
-                        action: function () {
-                            console.log('Update All action triggered');
+                        action: function ( e, dt, node, config) {
+                            node[0].disabled = true;
+                            node[0].innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+
+                            fetch('/update_all_releases', { method: 'POST' })
+                            .then(response => response.json())
+                            .then(result => {
+                                node[0].innerHTML = '<i class="bi bi-arrow-clockwise"></i> Update All';
+                                node[0].disabled = false;
+                
+                                const bsOperationOffcanvas = new bootstrap.Offcanvas('#offcanvasOperationResults');
+                                generateOffCanvas(result);  // Display operation status
+                                bsOperationOffcanvas.toggle();
+                                window.refreshTable();
+                            });
                         }
                     }
                 ]
@@ -107,6 +120,47 @@ $(document).ready(function() {
         table.ajax.reload();
     };
 
+    document.querySelector('#dataTableTitles tbody').addEventListener('click', function(event) {
+        let target = event.target;
+            // Traverse up to find the element with 'action-update' class
+    while (target && !target.classList.contains('action-update')) {
+        if (target === this) { // Stop if we reach the container without finding the class
+            return;
+        }
+        target = target.parentNode;
+    }
+        if (target.classList.contains('action-update')) {
+            let tr = target.closest('tr');
+            let row = table.row(tr).data();
+    
+            target.disabled = true;
+            target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+    
+            // Assuming `codename` is a property of the row data
+            let formData = new FormData();
+            formData.append('codename', row.codename);
+    
+            fetch('/update_release', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(detail => {
+                target.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Update';
+                target.disabled = false;
+    
+                const bsOperationOffcanvas = new bootstrap.Offcanvas('#offcanvasOperationResults');
+                generateOffCanvas(detail);  // Display operation status
+                bsOperationOffcanvas.toggle();
+                window.refreshTable();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                target.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Update';
+                target.disabled = false;
+            });
+        }
+    });
 
     const urlButton = document.querySelector('#urlButton');
     const filenameIndex = document.querySelector('#filenameIndex');
@@ -148,6 +202,25 @@ $(document).ready(function() {
         if (delimiterIndex !== -1) {
             releaseTitle.value = releaseTitle.value.substring(delimiterIndex + 1);
         }
+    });
+
+    releaseForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+        submitButton.disabled = true;
+        const formData = new FormData(releaseForm);
+        const response = await fetch('/add_release', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        submitButton.innerHTML = 'Submit';
+        submitButton.disabled = false;
+
+        const bsOperationOffcanvas = new bootstrap.Offcanvas('#offcanvasOperationResults')
+        generateOffCanvas(result);  // Display operation status
+        bsOperationOffcanvas.toggle()
+        window.refreshTable();
     });
 
     releaseForm.addEventListener('submit', async (e) => {

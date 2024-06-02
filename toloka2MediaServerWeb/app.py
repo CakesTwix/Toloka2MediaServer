@@ -155,11 +155,12 @@ def update_release():
         )
         operation_result = toloka2MediaServer.main_logic.update_release_by_name(requestData, requestData.codename, logger)
         output = serialize_operation_result(operation_result)
-        message = f'Release updated by name  {output}'
+        output = jsonify(output)
+        
+        return output, 200
     except Exception as e:
         message = f'Error: {str(e)}'
-    session['output'] = output
-    return redirect(url_for('index'))
+        return jsonify({"error": message}), 200
 
 @app.route('/update_all_releases', methods=['POST'])
 def update_all_releases():
@@ -168,11 +169,12 @@ def update_all_releases():
         requestData = RequestData()
         operation_result = toloka2MediaServer.main_logic.update_releases(requestData, logger)
         output = serialize_operation_result(operation_result)
-        message = f'All releases updated  {output}'
+        output = jsonify(output)
+        
+        return output, 200
     except Exception as e:
         message = f'Error: {str(e)}'
-    session['output'] = output
-    return redirect(url_for('index'))
+        return jsonify({"error": message}), 200
 
 def serialize_operation_result(operation_result):
     return {
