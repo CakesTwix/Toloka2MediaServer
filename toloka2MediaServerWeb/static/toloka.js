@@ -207,12 +207,14 @@ $(document).ready(function () {
         console.log('Copy action triggered', rowData, childData);
         bsOffcanvas.hide()
 
-        document.querySelector('#title').value = rowData.name;
-        document.querySelector('#url').value  = `https://toloka.to/${rowData.url}`;
+        document.querySelector('#releaseTitle').value = rowData.name;
+        document.querySelector('#tolokaUrl').value  = `https://toloka.to/${rowData.url}`;
         if(childData != null)
             {
-                var input = document.querySelector('#numberInput');
-                input.value = childData.files[0].file_name
+                filePath = `${childData.files[0].folder_name}/${childData.files[0].file_name}`
+                var input = document.querySelector('#filenameIndex');
+                document.querySelector('#filenameIndexGroup').classList.toggle("d-none");
+                input.value = filePath
 
                 const event = new Event('input', {
                     bubbles: true,

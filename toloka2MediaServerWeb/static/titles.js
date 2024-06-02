@@ -59,10 +59,24 @@ $(document).ready(function() {
         table.ajax.reload();
     };
 
+
+    const urlButton = document.querySelector('#urlButton');
+    const filenameIndex = document.querySelector('#filenameIndex');
+    const filenameIndexGroup = document.querySelector('#filenameIndexGroup');
+    const cutButton = document.querySelector('#cutButton');
+    const releaseTitle = document.querySelector('#releaseTitle');
+    const submitButton = document.querySelector('#submitButton');
+    const releaseForm = document.querySelector('#releaseForm');
+
+    urlButton.addEventListener('click', () => {
+        filenameIndexGroup.classList.toggle("d-none");
+    });
+
+    filenameIndex.addEventListener('input', extractNumbers);
     function extractNumbers() {
-        const input = document.getElementById('numberInput').value;
+        const input = filenameIndex.value;
         const numbers = input.split('').map((ch) => (ch >= '0' && ch <= '9') ? ch : ' ').join('').trim().split(/\s+/);
-        const resultList = document.getElementById('result');
+        const resultList = document.querySelector('#numberList');
         resultList.innerHTML = '';
     
         numbers.forEach((number, index) => {
@@ -71,28 +85,99 @@ $(document).ready(function() {
                 item.className = 'list-group-item';
                 item.textContent = `Index: ${index+1}, Number: ${number}`;
                 item.addEventListener('click', () => {
-                    document.getElementById('index').value = index + 1;
+                    document.querySelector('#index').value = index + 1;
                     resultList.style.display = 'none';
                 });
                 resultList.appendChild(item);
             }
         });
     
-        if (numbers.join('').length === 0) {
-            resultList.style.display = 'none';
-        } else {
-            resultList.style.display = 'block';
-        }
+        resultList.style.display = numbers.join('').length === 0 ? 'none' : 'block';
     }
-    // Get the input element
-    const numberInput = document.querySelector('#numberInput');
+
+    cutButton.addEventListener('click', () => {
+        const delimiterIndex = releaseTitle.value.search(/[\/|]/);
+        if (delimiterIndex !== -1) {
+            releaseTitle.value = releaseTitle.value.substring(delimiterIndex + 1);
+        }
+    });
+
+    releaseForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+        submitButton.disabled = true;
+        const formData = new FormData(releaseForm);
+        const response = await fetch('/add_release', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        submitButton.innerHTML = 'Submit';
+        submitButton.disabled = false;
+
+        const bsOperationOffcanvas = new bootstrap.Offcanvas('#offcanvasOperationResults')
+        generateOffCanvas(result);  // Display operation status
+        bsOperationOffcanvas.toggle()
+        window.refreshTable();
+    });
     
-    // Event listener for input event
-    numberInput.addEventListener('input', extractNumbers);
+    function generateOffCanvas(response) {
+        if (!response) return; // Exit if no response data
     
-    // Event listener for change event
-    numberInput.addEventListener('change', extractNumbers);
+        // Determine alert and badge classes based on the response code
+        const alertClass = response.response_code === 'SUCCESS' ? 'alert-success' :
+                           response.response_code === 'FAILURE' ? 'alert-danger' : 'alert-warning';
+        const badgeClass = response.response_code === 'SUCCESS' ? 'bg-success' :
+                           response.response_code === 'FAILURE' ? 'bg-danger' : 'bg-warning';
     
+        // Helper function to generate list items for accordion
+        function generateListItems(items) {
+            return items.map(item => `<li class="list-group-item">${item}</li>`).join('');
+        }
+    
+        // Generate accordion HTML
+        function generateAccordion(id, headingText, items) {
+            return `
+                <div class="accordion mt-3" id="${id}">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="${id}Heading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${id}Collapse" aria-expanded="false" aria-controls="${id}Collapse">
+                                ${headingText}
+                            </button>
+                        </h2>
+                        <div id="${id}Collapse" class="accordion-collapse collapse" aria-labelledby="${id}Heading">
+                            <div class="accordion-body">
+                                <ul class="list-group">
+                                    ${generateListItems(items)}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    
+        // Generate the entire card with accordions
+        const cardHTML = `
+            <div class="card alert ${alertClass}">
+                <div class="card-body">
+                    <h5 class="card-title">Operation Type: ${response.operation_type.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}</h5>
+                    <p class="card-text">Response Code: <span class="badge ${badgeClass}">${response.response_code}</span></p>
+                    <p class="card-text">Start Time: ${response.start_time}</p>
+                    <p class="card-text">End Time: ${response.end_time}</p>
+                    ${response.titles_references ? generateAccordion('TitlesAccordion', 'Titles References', response.titles_references) : ''}
+                    ${response.torrent_references ? generateAccordion('torrentAccordion', 'Torrent References', response.torrent_references) : ''}
+                    ${response.operation_logs ? generateAccordion('logsAccordion', 'Operation Logs', response.operation_logs) : ''}
+                    <hr>
+                    <p class="mb-0">Create an issue on github if something wrong.</p>
+                </div>
+            </div>
+        `;
+    
+        // Insert the generated HTML into a predefined container in your HTML
+        document.getElementById('offcanvasBody').innerHTML = cardHTML;
+    }
+
 });
 
 

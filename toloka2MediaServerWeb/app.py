@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, jsonify, request, render_template, redirect, url_for, session, Response
+from flask import Flask, json, jsonify, request, render_template, redirect, url_for, session, Response
 import requests
 import sys
 
@@ -139,11 +139,12 @@ def add_release():
 
         operation_result = toloka2MediaServer.main_logic.add_release_by_url(requestData, logger)
         output = serialize_operation_result(operation_result)
-        message = f'Release added from URL. {output}'
+        output = jsonify(output)
+        
+        return output, 200
     except Exception as e:
         message = f'Error: {str(e)}'
-    session['output'] = output
-    return redirect(url_for('index'))
+        return jsonify({"error": message}), 200
 
 @app.route('/update_release', methods=['POST'])
 def update_release():
