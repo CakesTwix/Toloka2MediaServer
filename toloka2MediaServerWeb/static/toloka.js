@@ -66,7 +66,10 @@ $(document).ready(function () {
                         buttons: [
                             {
                                 extend: 'colvis',
-                                postfixButtons: ['colvisRestore']
+                                postfixButtons: ['colvisRestore'],
+                                text: '<i class="bi bi-table"></i>',
+                                titleAttr: 'Column Visibility'
+                                
                             },
                             {
                                 extend: 'searchPanes',
@@ -206,6 +209,17 @@ $(document).ready(function () {
     function performCopyAction(rowData, childData) {
         console.log('Copy action triggered', rowData, childData);
         bsOffcanvas.hide()
+
+        // Select the element with ID 'leftSideAdd' and ensure it does not have 'd-none'
+        const leftSideAdd = document.querySelector('#leftSideAdd');
+        leftSideAdd.classList.remove('d-none');
+
+        // Select the element with ID 'rightSideTitles' and adjust its classes
+        const rightSideTitles = document.querySelector('#rightSideTitles');
+        // Ensure 'col-md-8' is present
+        rightSideTitles.classList.add('col-md-8');
+        // Ensure 'col-md-12' is not present
+        rightSideTitles.classList.remove('col-md-12');
 
         document.querySelector('#releaseTitle').value = rowData.name;
         document.querySelector('#tolokaUrl').value  = `https://toloka.to/${rowData.url}`;

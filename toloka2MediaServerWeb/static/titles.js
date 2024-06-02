@@ -15,18 +15,18 @@ $(document).ready(function() {
         columns: [
             { data: 'codename', title: 'Codename', visible: true },
             { data: 'torrent_name', title: 'Torrent Name', visible: true },
-            { data: 'adjusted_episode_number', title: 'Adjusted Episode Number' },
-            { data: 'download_dir', title: 'Download Dir' },
-            { data: 'episode_index', title: 'Episode Index' },
-            { data: 'ext_name', title: 'Ext Name' },
+            { data: 'adjusted_episode_number', title: 'Adjusted Episode Number', visible: false },
+            { data: 'download_dir', title: 'Download Dir', visible: false },
+            { data: 'episode_index', title: 'Episode Index', visible: false },
+            { data: 'ext_name', title: 'Ext Name', visible: false },
             { data: 'guid', title: 'GUID', render: function(data, type, row) {
                 return `<a href="https://toloka.to/${data}">${data}</a>`;
             }, visible: true },
-            { data: 'hash', title: 'Hash' },
-            { data: 'meta', title: 'Meta' },
+            { data: 'hash', title: 'Hash', visible: false },
+            { data: 'meta', title: 'Meta', visible: false },
             { data: 'publish_date', title: 'Publish Date', visible: true  },
-            { data: 'release_group', title: 'Release Group' },
-            { data: 'season_number', title: 'Season Number' },
+            { data: 'release_group', title: 'Release Group', visible: false },
+            { data: 'season_number', title: 'Season Number' , visible: false},
             { data: null, title: 'Actions', orderable: false, render: function(data, type, row) {
                 return `
                     <button class="btn btn-outline-warning" disabled><span class="bi bi-pencil-square" aria-hidden="true"></span><span class="visually-hidden" role="status">Edit</span></button>
@@ -37,21 +37,69 @@ $(document).ready(function() {
         ],
         order: [[9, 'des']],
         columnDefs: [
-            { targets: '_all', visible: false },
-            { targets: [0, 1, 6, 9, 12], visible: true }
+            {
+                searchPanes: {
+                    show: true
+                },
+                targets: [1, 8, 10]
+            }
         ],
         layout: {
             topStart: {
                 buttons: [
                     {
                         extend: 'colvis',
-                        postfixButtons: ['colvisRestore']
+                        postfixButtons: ['colvisRestore'],
+                        text: '<i class="bi bi-table"></i>',
+                        titleAttr: 'Column Visibility'
+                        
                     },
-                    { text: 'Refresh', action: function ( e, dt, node, config ) {
-                        dt.ajax.reload();
-                    }}
+                    {
+                        extend: 'searchPanes',
+                        className: 'btn btn-secondary',
+                        config: {
+                            cascadePanes: true
+                        }
+                        
+                    },
+                    { 
+                        action: function ( e, dt, node, config ) {dt.ajax.reload();},                        
+                        text: '<i class="bi bi-arrow-clockwise"></i>',
+                        titleAttr: 'Refresh'
+                    },
+                    {
+                        extend: 'pageLength',
+                        className: 'btn btn-secondary'
+                    }
+                ]
+            },
+            top1End:
+            {
+                buttons:[
+                    {
+                        text: 'Add',
+                        className: 'btn btn-primary',
+                        action: function () {
+                            const leftSideAdd = document.querySelector('#leftSideAdd');
+                            leftSideAdd.classList.toggle('d-none');
+                            const rightSideTitles = document.querySelector('#rightSideTitles');
+                            rightSideTitles.classList.toggle('col-md-12');
+                            rightSideTitles.classList.toggle('col-md-8');
+                        }
+                    },
+                    {
+                        text: 'Update All',
+                        className: 'btn btn-primary',
+                        action: function () {
+                            console.log('Update All action triggered');
+                        }
+                    }
                 ]
             }
+        },
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search records"
         }
     });
 

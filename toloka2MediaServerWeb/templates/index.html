@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toloka2MediaServer v2024.06.02.0136</title>
+    <title>Toloka2MediaServer v2024.06.02.1533</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -110,7 +110,7 @@
                         </li>
                     </ul>
                     <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" required>
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                 </div>
@@ -124,7 +124,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Left Side content -->
-        <div class="col-md-4">
+        <div class="col-md-4 d-none" id="leftSideAdd">
             <div class="row">
                 <!-- Section 1 -->
                 <div class="col-md-12">
@@ -227,7 +227,7 @@
         <!-- End of Left Side content -->
 
         <!-- Right Side content -->
-        <div class="col-md-8">
+        <div class="col-md-12" id="rightSideTitles">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
