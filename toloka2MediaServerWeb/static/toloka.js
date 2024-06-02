@@ -53,13 +53,26 @@ $(document).ready(function () {
                     }, visible: true }
                 ],
                 order: [[4, 'des']],
-                
+                columnDefs: [
+                    {
+                        searchPanes: {
+                            show: true
+                        },
+                        targets: [1, 3]
+                    }
+                ],
                 layout: {
                     topStart: {
                         buttons: [
                             {
                                 extend: 'colvis',
                                 postfixButtons: ['colvisRestore']
+                            },
+                            {
+                                extend: 'searchPanes',
+                                config: {
+                                    cascadePanes: true
+                                }
                             }
                         ]
                     }
