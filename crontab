@@ -1,1 +1,0 @@
-$CRON_SCHEDULE root python3 -m toloka2MediaServer

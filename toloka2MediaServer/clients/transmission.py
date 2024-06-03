@@ -1,28 +1,28 @@
-import logging
-
 from transmission_rpc import Client
 from transmission_rpc.error import TransmissionConnectError
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
-from toloka2MediaServer.config import app, application_config
 
-# Set Logging
-logger = logging.getLogger(__name__)
 class TransmissionClient(BittorrentClient):
-    def __init__(self):
+    def __init__(self, config):
         """Initialize and log in to the Transmission client."""
         try:
+            super().__init__()
             self.api_client = Client(
-                host=app[application_config.client]["host"],
-                port=app[application_config.client]["port"],
-                username=app[application_config.client]["username"],
-                password=app[application_config.client]["password"],
-                path=app[application_config.client]["rpc"],
-                protocol=app[application_config.client]["protocol"],
+                host=config.config.app_config[config.application_config.client]["host"],
+                port=config.app_config[config.application_config.client]["port"],
+                username=config.app_config[config.application_config.client]["username"],
+                password=config.app_config[config.application_config.client]["password"],
+                path=config.app_config[config.application_config.client]["rpc"],
+                protocol=config.app_config[config.application_config.client]["protocol"],
             )
-            logger.info(f"Connected to: {application_config.client}")
+                        
+            self.category = config.app_config[config.application_config.client]["category"]
+            self.tags = config.app_config[config.application_config.client]["tag"]
+            
+            config.logger.info(f"Connected to: {config.application_config.client}")
         except TransmissionConnectError:
-            logger.critical(f"{application_config.client} wrong connection details")
+            config.logger.critical(f"{config.application_config.client} wrong connection details")
             raise
 
     def add_torrent(self, torrents, category, tags, is_paused, download_dir):

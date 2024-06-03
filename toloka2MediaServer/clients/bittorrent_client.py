@@ -2,6 +2,10 @@
 from abc import ABC, abstractmethod
 
 class BittorrentClient(ABC):
+    def __init__(self):
+        self._tags = None
+        self._category = None
+        
     @abstractmethod
     def add_torrent(self, torrents, category, tags, is_paused, download_dir):
         """Add a new torrent."""
@@ -51,3 +55,23 @@ class BittorrentClient(ABC):
     def end_session(self, torrent_hashes):
         """End client session."""
         pass
+    
+    @property
+    def tags(self):
+        """Get the tags."""
+        return self._tags
+
+    @tags.setter
+    def tags(self, value):
+        """Set the tags."""
+        self._tags = value
+
+    @property
+    def category(self):
+        """Get the category."""
+        return self._category
+
+    @category.setter
+    def category(self, value):
+        """Set the category."""
+        self._category = value
