@@ -2,6 +2,10 @@
 from abc import ABC, abstractmethod
 
 class BittorrentClient(ABC):
+    def __init__(self):
+        self._tags = None
+        self._category = None
+        
     @abstractmethod
     def add_torrent(self, torrents, category, tags, is_paused, download_dir):
         """Add a new torrent."""

@@ -7,6 +7,7 @@ class TransmissionClient(BittorrentClient):
     def __init__(self, config):
         """Initialize and log in to the Transmission client."""
         try:
+            super().__init__()
             self.api_client = Client(
                 host=config.config.app_config[config.application_config.client]["host"],
                 port=config.app_config[config.application_config.client]["port"],
@@ -17,7 +18,7 @@ class TransmissionClient(BittorrentClient):
             )
                         
             self.category = config.app_config[config.application_config.client]["category"]
-            self.tag = config.app_config[config.application_config.client]["tag"]
+            self.tags = config.app_config[config.application_config.client]["tag"]
             
             config.logger.info(f"Connected to: {config.application_config.client}")
         except TransmissionConnectError:

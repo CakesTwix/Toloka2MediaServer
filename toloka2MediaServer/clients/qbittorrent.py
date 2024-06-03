@@ -5,6 +5,7 @@ class QbittorrentClient(BittorrentClient):
     def __init__(self, config):
         """Initialize and log in to the qBittorrent client."""
         try:
+            super().__init__()
             self.api_client = qbittorrentapi.Client(
                 host=config.app_config[config.application_config.client]["host"],
                 port=config.app_config[config.application_config.client]["port"],
@@ -13,7 +14,7 @@ class QbittorrentClient(BittorrentClient):
             )
             
             self.category = config.app_config[config.application_config.client]["category"]
-            self.tag = config.app_config[config.application_config.client]["tag"]
+            self.tags = config.app_config[config.application_config.client]["tag"]
             
             self.api_client.auth_log_in()
             config.logger.info("Connected to qBittorrent client successfully.")

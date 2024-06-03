@@ -28,6 +28,8 @@ def add_release_by_url(config):
     default_meta = config.application_config.default_meta
     title.meta = default_meta
     config.operation_result = add(config, title, torrent)
+    
+    return config.operation_result
 
 @operation_tracker(OperationType.ADD_BY_CODE)    
 def add_release_by_name(config):
@@ -52,11 +54,15 @@ def add_release_by_name(config):
     default_meta = config.application_config.default_meta
     title.meta = input(f"Default: {default_meta}. Enter additional metadata tags: ") or default_meta
     config.operation_result = add(config, title, torrent)
+    
+    return config.operation_result
 
 @operation_tracker(OperationType.UPDATE_BY_CODE)      
 def update_release_by_name(config):
     config.operation_result = update_release(config, config.args.codename)
     config.client.end_session()
+    
+    return config.operation_result
 
 @operation_tracker(OperationType.UPDATE_ALL)   
 def update_releases(config):
@@ -65,7 +71,9 @@ def update_releases(config):
         time.sleep(config.application_config.wait_time)
         config.args.codename = section
         config.operation_result = update_release(config)
-    config.client.end_session()  
+    config.client.end_session()
+    
+    return config.operation_result
 
 def update_release(config):
     """
@@ -79,6 +87,8 @@ def update_release(config):
     """
     title = config_to_title(config.titles_config, config.args.codename)
     config.operation_result = update(config, title)
+    
+    return config.operation_result
 
 def search_torrents(config):
     torrents = config.toloka.search(config.args)

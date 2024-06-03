@@ -1,5 +1,4 @@
 """Functions for working with torrents"""
-import logging
 import time
 
 from toloka2MediaServer.clients.bittorrent_client import BittorrentClient
@@ -8,8 +7,6 @@ from toloka2MediaServer.config_parser import update_config
 from toloka2MediaServer.models.operation_result import OperationResult
 from toloka2MediaServer.models.title import Title, title_to_config
 from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in_path, get_folder_name_from_path
-
-logger = logging.getLogger(__name__)
 
 def process_torrent(config, title, torrent, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
@@ -33,7 +30,7 @@ def process_torrent(config, title, torrent, new=False):
         title.hash = added_torrent.id
         get_filelist = added_torrent.get_files()
         
-    logger.debug(added_torrent)
+    config.logger.debug(added_torrent)
     
     first_fileName = get_filelist[0].name
 
@@ -108,14 +105,14 @@ def update(config, title):
     if title.publish_date not in torrent.date:
         message = f"Date is different! : {torrent.name}"
         config.operation_result.operation_logs.append(message)
-        logger.info(message)
+        config.logger.info(message)
         if not config.args.force:
             config.client.delete_torrent(delete_files=False, torrent_hashes=title.hash)
         config.operation_result = process_torrent(config, title, torrent)
     else:
         message = f"Update not required! : {torrent.name}"
         config.operation_result.operation_logs.append(message)
-        logger.info(message)
+        config.logger.info(message)
         
     return config.operation_result
 
