@@ -59,7 +59,7 @@ def add_release_by_name(config):
 
 @operation_tracker(OperationType.UPDATE_BY_CODE)      
 def update_release_by_name(config):
-    config.operation_result = update_release(config, config.args.codename)
+    config.operation_result = update_release(config)
     config.client.end_session()
     
     return config.operation_result
