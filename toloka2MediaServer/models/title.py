@@ -17,6 +17,15 @@ class Title:
     guid: str = ""
     
 def title_to_config(title):
+    """
+    Transform Title class back to specified section of configparser.ConfigParser() 
+
+    Args:
+        title (Title): created by config_to_title
+
+    Returns:
+        config (configparser.ConfigParser()): parser with updated section
+    """
     config = configparser.ConfigParser()
     config[title.code_name] = {
         'episode_index': str(title.episode_index),
@@ -35,6 +44,16 @@ def title_to_config(title):
     return config
 
 def config_to_title(config, code_name):
+    """
+    Transform specified section of configparser.ConfigParser() into Title class
+
+    Args:
+        config (configparser.ConfigParser()): titles.ini
+        code_name (str): name of the section from config
+
+    Returns:
+        Title: title class instance of config section
+    """
     if code_name not in config:
         return None
 

@@ -3,6 +3,8 @@ import os
 import configparser
 from toloka2python import Toloka
 
+from toloka2MediaServer.models.application import config_to_app
+
 def load_configurations(app_config_path=None, title_config_path=None):
     """Load configuration files with flexibility on path specification."""
     if app_config_path is None:
@@ -14,7 +16,8 @@ def load_configurations(app_config_path=None, title_config_path=None):
     titles_config = configparser.ConfigParser()
     app_config.read(app_config_path)
     titles_config.read(title_config_path)
-    return app_config, titles_config
+    application_config = config_to_app(app_config)
+    return app_config, titles_config, application_config
 
 def get_toloka_client(application_config):
     return Toloka(application_config.username, application_config.password)

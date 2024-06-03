@@ -51,3 +51,23 @@ class BittorrentClient(ABC):
     def end_session(self, torrent_hashes):
         """End client session."""
         pass
+    
+    @property
+    def tags(self):
+        """Get the tags."""
+        return self._tags
+
+    @tags.setter
+    def tags(self, value):
+        """Set the tags."""
+        self._tags = value
+
+    @property
+    def category(self):
+        """Get the category."""
+        return self._category
+
+    @category.setter
+    def category(self, value):
+        """Set the category."""
+        self._category = value

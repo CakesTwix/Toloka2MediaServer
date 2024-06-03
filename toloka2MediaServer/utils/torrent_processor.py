@@ -11,25 +11,25 @@ from toloka2MediaServer.utils.general import get_numbers, replace_second_part_in
 
 logger = logging.getLogger(__name__)
 
-def process_torrent(client: BittorrentClient, torrent, title: Title, operation_result: OperationResult, new=False):
+def process_torrent(config, title, torrent, new=False):
     """ Common logic to process torrents, either updating or adding new ones """
     title.publish_date = torrent.date
     
-    tolokaTorrentFile = toloka.download_torrent(f"{toloka.toloka_url}/{torrent.torrent_url}")
+    tolokaTorrentFile = config.toloka.download_torrent(f"{config.toloka.toloka_url}/{torrent.torrent_url}")
         
-    category = app_config[application_config.client]["category"]
-    tag = app_config[application_config.client]["tag"]
+    category = config.client.category
+    tag = config.client.tags
     
-    add_torrent_response = client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True, download_dir=title.download_dir)
-    time.sleep(application_config.client_wait_time)
-    if application_config.client == "qbittorrent":
-        filtered_torrents = client.get_torrent_info(status_filter='paused', category=category, tags=tag, sort="added_on", reverse=True)
+    add_torrent_response = config.client.add_torrent(torrents=tolokaTorrentFile, category=category, tags=[tag], is_paused=True, download_dir=title.download_dir)
+    time.sleep(config.application_config.client_wait_time)
+    if config.application_config.client == "qbittorrent":
+        filtered_torrents = config.client.get_torrent_info(status_filter='paused', category=category, tags=tag, sort="added_on", reverse=True)
         added_torrent = filtered_torrents[0]
         title.hash = added_torrent.info.hash
-        get_filelist = client.get_files(title.hash)
+        get_filelist = config.client.get_files(title.hash)
 
     else:
-        added_torrent = client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True, torrent_hash=add_torrent_response)
+        added_torrent = config.client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True, torrent_hash=add_torrent_response)
         title.hash = added_torrent.id
         get_filelist = added_torrent.get_files()
         
@@ -75,53 +75,56 @@ def process_torrent(client: BittorrentClient, torrent, title: Title, operation_r
         source_episode = get_numbers(file.name)[title.episode_index]
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
         new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta}-{title.release_group}{title.ext_name}"
-        if application_config.client == "qbittorrent":
+        if config.application_config.client == "qbittorrent":
             new_path = replace_second_part_in_path(file.name, new_name)
         else:
             new_path = new_name
-        client.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
+        config.client.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
 
     folderName = f"{title.torrent_name} S{title.season_number} {title.meta}[{title.release_group}]"
     old_path = get_folder_name_from_path(first_fileName)
-    client.rename_folder(torrent_hash=title.hash, old_path=old_path, new_path=folderName)
-    client.rename_torrent(torrent_hash=title.hash, new_torrent_name=folderName)
+    config.client.rename_folder(torrent_hash=title.hash, old_path=old_path, new_path=folderName)
+    config.client.rename_torrent(torrent_hash=title.hash, new_torrent_name=folderName)
     
-    config = title_to_config(title)
+    
     if new:
-        client.resume_torrent(torrent_hashes=title.hash)
+        config.client.resume_torrent(torrent_hashes=title.hash)
     else:
-        client.recheck_torrent(torrent_hashes=title.hash)
-        client.resume_torrent(torrent_hashes=title.hash)
-        
-    update_config(config, title.code_name)
+        config.client.recheck_torrent(torrent_hashes=title.hash)
+        config.client.resume_torrent(torrent_hashes=title.hash)
     
-    return operation_result    
+    titleConfig = title_to_config(title)
+    update_config(titleConfig, title.code_name)
     
-def update(client: BittorrentClient, title: Title, force: bool, operation_result: OperationResult):
-    operation_result.titles_references.append(title)
+    return config.operation_result    
+    
+def update(config, title):
+    config.operation_result.titles_references.append(title)
     if title == None:
-        operation_result.operation_logs.append("Title not found")
-        return operation_result
-    torrent = toloka.get_torrent(f"{toloka.toloka_url}/{title.guid.strip('"')}")
-    operation_result.torrent_references.append(torrent)
+        config.operation_result.operation_logs.append("Title not found")
+        return config.operation_result
+    torrent = config.toloka.get_torrent(f"{config.toloka.toloka_url}/{title.guid.strip('"')}")
+    config.operation_result.torrent_references.append(torrent)
     if title.publish_date not in torrent.date:
         message = f"Date is different! : {torrent.name}"
-        operation_result.operation_logs.append(message)
+        config.operation_result.operation_logs.append(message)
         logger.info(message)
-        if not force:
-            client.delete_torrent(delete_files=False, torrent_hashes=title.hash)
-        operation_result = process_torrent(client, torrent, title, operation_result)
+        if not config.args.force:
+            config.client.delete_torrent(delete_files=False, torrent_hashes=title.hash)
+        config.operation_result = process_torrent(config, title, torrent)
     else:
         message = f"Update not required! : {torrent.name}"
-        operation_result.operation_logs.append(message)
+        config.operation_result.operation_logs.append(message)
         logger.info(message)
         
-    return operation_result
+    return config.operation_result
 
-def add(client: BittorrentClient, torrent, title: Title, operation_result: OperationResult):
-    operation_result.titles_references.append(title)
-    operation_result.torrent_references.append(torrent)
-    operation_result = process_torrent(client, torrent, title=title, operation_result=operation_result, new=True)
-    client.end_session()
+#torrent, title, operation_result, logger, toloka, client, application_config, titles_config, operation_result
+
+def add(config, title, torrent):
+    config.operation_result.titles_references.append(title)
+    config.operation_result.torrent_references.append(torrent)
+    config.operation_result = process_torrent(config, title, torrent, new=True)
+    config.client.end_session()
     
-    return operation_result
+    return config.operation_result
