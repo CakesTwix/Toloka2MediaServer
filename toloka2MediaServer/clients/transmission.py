@@ -9,7 +9,7 @@ class TransmissionClient(BittorrentClient):
         try:
             super().__init__()
             self.api_client = Client(
-                host=config.config.app_config[config.application_config.client]["host"],
+                host=config.app_config[config.application_config.client]["host"],
                 port=config.app_config[config.application_config.client]["port"],
                 username=config.app_config[config.application_config.client]["username"],
                 password=config.app_config[config.application_config.client]["password"],
