@@ -38,16 +38,11 @@
             "module": "toloka2MediaServer",
             "args": [
                 "--add",
-                "--url",
-                "https://toloka.to/t678861",
-                "--season",
-                "05",
-                "--index",
-                "3",
-                "--correction",
-                "0",
-                "--title",
-                "Kimetsu no Yaiba: Hashira Geiko-hen (2024)"
+                "--url", "https://toloka.to/t678861",
+                "--season", "05",
+                "--index", "4",
+                "--correction", "0",
+                "--title", "Kimetsu no Yaiba: Hashira Geiko-hen (2024)"
             ]
         },
         {

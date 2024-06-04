@@ -44,14 +44,16 @@ def main():
     if args.url:
         #--add --url https://toloka.to/t675888 --season 02 --index 2 --correction 0 --title "Tsukimichi -Moonlit Fantasy-"
         logger.debug(f"--add {args.add} --url {args.url} --season {args.season} --index{args.index} --correction{args.correction} --title{args.title}")
-        add_release_by_url(config)
+        response = add_release_by_url(config)
+        logger.debug(response)
         sys.exit()
 
     # Adding new title. Expect user input to finish operation
     if args.add:
         #--add "Tsuki ga Michibiku Isekai Douchuu (Season 2)"
         logger.debug(f"--add {args.add}")
-        add_release_by_name(config)
+        response = add_release_by_name(config)
+        logger.debug(response)
         sys.exit()
 
     # Update specific or all anime
@@ -59,11 +61,13 @@ def main():
     if args.codename:
         # Updates existing title from titles.ini based on provided codename. No user input required.
         logger.debug(f"--codename {args.codename}")
-        update_release_by_name(config)
+        response = update_release_by_name(config)
+        logger.debug(response)
     else:
         # Update all listed titles from titles.ini
         logger.debug(f"no args, update all")
-        update_releases(config)
+        response = update_releases(config)
+        logger.debug(response)
 
     sys.exit()
     
