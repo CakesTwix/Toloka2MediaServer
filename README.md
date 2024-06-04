@@ -154,9 +154,9 @@ tag = toloka
 category = sonarr
 
 [Toloka]
-username = 
-password = 
-client = qbittorrent
+username = Імя користувача
+password = Пароль
+client = qbittorrent або transmission
 default_download_dir = /media/HDD/Jellyfin/Anime
 default_meta = [WEBRip-1080p][UK+JA][Ukr Sub]
 wait_time = 10
@@ -170,7 +170,7 @@ season_number = 02
 ext_name = .mkv
 torrent_name = "Arknights: Touin Kiro (2022)"
 download_dir = /media/HDD/Jellyfin/Anime
-publishdate = 24-05-23 21:32
+publish_date = 24-05-23 21:32
 release_group = InariDuB
 meta = [WEBRip-1080p][UK+JA][Ukr Sub]
 hash = 97e3023362ebb41263f3266ac3a72cc56eda0885
@@ -183,7 +183,7 @@ season_number = 02
 ext_name = .mkv
 torrent_name = "Tsukimichi -Moonlit Fantasy- (2021)"
 download_dir = /media/HDD/Jellyfin/Anime
-publishdate = 24-05-28 17:16
+publish_date = 24-05-28 17:16
 release_group = FanVoxUA
 meta = [WEBRip-1080p][UK][Ukr Sub]
 hash = 8bcb2b32b4885e6c4a03f909486a03f26a4c9a62
@@ -201,7 +201,7 @@ guid = t675888
 | ext_name               | .mkv                                                | .mkv                                           | Формат файлу                                                        |
 | torrent_name           | "Arknights: Touin Kiro (2022)"                     | "Tsukimichi -Moonlit Fantasy- (2021)"          | Базове ім'я для генерації назви торрента, тек та файлів             |
 | download_dir           |                                                     | /media/HDD/Jellyfin/Anime                      | Директорія для завантаження медіа (використовується в Transmission) |
-| publishdate            | 2024-05-23                                          | 2024-05-21                                     | Системне значення для визначення оновлень торренту                   |
+| publish_date            | 2024-05-23                                          | 2024-05-21                                     | Системне значення для визначення оновлень торренту                   |
 | release_group          | InariDuB                                            | FanVoxUA                                       | Реліз група або автор роздачі                                       |
 | meta                   | [WEBRip-1080p][UK+JA][Ukr Sub]                     | [WEBRip-1080p][UK][Ukr Sub]                     | Додаткові метадані, які будуть додані у назву                         |
 | hash                   | 97e...0885          | 12      | Системне значення - ID торрент файлу для майбутнього пошуку           |
