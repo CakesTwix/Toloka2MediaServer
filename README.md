@@ -17,6 +17,12 @@ The scripts in this project make direct API calls to the torrent clients like Tr
 
 Any future documentation will be provided in Ukrainian. Please use a translator if needed or create new issues if you require further assistance.
 
+## Contributing
+
+As I use this for my own projects, I know this might not be the perfect approach for all the projects out there. If you have any ideas, just open an issue and tell me what you think.
+
+If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
+
 ## UA Section
 Консольна утиліта для докачування нових серій аніме з Toloka.
 Для скачування торрент-файлів використовується власна бібліотека toloka2python!
@@ -38,6 +44,14 @@ The Girl I Like Forgot Her Glasses (S1)
 └── Episode S1E08.mkv
 ```
 
+# Вміст
+ - [Огляд Інтерфейсу Користувача](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#огляд-інтерфейсу-користувача)
+   - [Інтерфейс Командного Рядка](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#інтерфейс-командного-рядка-cli) (CLI)
+   - [Огляд роботи](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#огляд-роботи)
+ - [Crontab](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#crontab-every-day-at-800)
+ - [Конфиги](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#конфиги)
+ - [Автори](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#автори)
+ - [Ліцензія](https://github.com/CakesTwix/Toloka2MediaServer?tab=readme-ov-file#ліцензія)
 
 ## Огляд Інтерфейсу Користувача
 
@@ -71,7 +85,7 @@ Default: [WEBRip-1080p][UK+JA][Ukr Sub]. Enter additional metadata tags:
 
 ![CLI Скріншот](assets/cli.png)
 
-## Огляд работи
+## Огляд роботи
 
 **Перед змінами:**  
 ![Web UI Скріншот](assets/files-before.png) 
@@ -121,7 +135,7 @@ crontab -e
 ```
 > 0 8 * * * cd /path/to/toloka2MediaServer/ && python3 -m toloka2MediaServer
 
-## Configs
+## Конфиги
 
 * ### app.ini
 ```ini
@@ -210,15 +224,16 @@ guid = t675888
 
 </small>
 
-## Authors
+## Автори
 
-- [@CakesTwix](https://www.github.com/CakesTwix)
+- [@CakesTwix](https://www.github.com/CakesTwix) - Автор проекту та розробник
+- [@maksii](https://github.com/maksii) - Розробник
 
 <a href="https://www.buymeacoffee.com/cakestwix"><img width="150" src="https://img.buymeacoffee.com/button-api/?text=Buy me a tea&emoji=🍵&slug=cakestwix&button_colour=FF5F5F&font_colour=ffffff&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00" /></a>
 </p>
 
 
-## License
+## Ліцензія
 
 - [GPL-v3](https://choosealicense.com/licenses/gpl-3.0/)
 
