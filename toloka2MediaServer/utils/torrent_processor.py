@@ -71,7 +71,11 @@ def process_torrent(config, title, torrent, new=False):
         
         source_episode = get_numbers(file.name)[title.episode_index]
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
-        new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta}-{title.release_group}{title.ext_name}"
+
+        new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta} {title.release_group}{title.ext_name}"
+        new_name = new_name.replace("  ", ".").replace(" ", ".")
+
+
         if config.application_config.client == "qbittorrent":
             new_path = replace_second_part_in_path(file.name, new_name)
         else:
@@ -79,6 +83,8 @@ def process_torrent(config, title, torrent, new=False):
         config.client.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
 
     folderName = f"{title.torrent_name} S{title.season_number} {title.meta}[{title.release_group}]"
+    folderName = folderName.replace("  ", ".").replace(" ", ".")
+
     old_path = get_folder_name_from_path(first_fileName)
     config.client.rename_folder(torrent_hash=title.hash, old_path=old_path, new_path=folderName)
     config.client.rename_torrent(torrent_hash=title.hash, new_torrent_name=folderName)
