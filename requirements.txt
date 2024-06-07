@@ -1,3 +1,4 @@
 transmission_rpc
+qbittorrent-api
 requests
 git+https://github.com/CakesTwix/toloka2python
