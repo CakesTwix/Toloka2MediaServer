@@ -73,7 +73,8 @@ def process_torrent(config, title, torrent, new=False):
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
 
         new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta} {title.release_group}{title.ext_name}"
-        new_name = new_name.replace("  ", ".").replace(" ", ".")
+        if config.application_config.enable_dot_spacing_in_file_name:
+            new_name = new_name.replace("  ", ".").replace(" ", ".")
 
 
         if config.application_config.client == "qbittorrent":
@@ -83,7 +84,8 @@ def process_torrent(config, title, torrent, new=False):
         config.client.rename_file(torrent_hash=title.hash, old_path=file.name, new_path=new_path)
 
     folderName = f"{title.torrent_name} S{title.season_number} {title.meta}[{title.release_group}]"
-    folderName = folderName.replace("  ", ".").replace(" ", ".")
+    if config.application_config.enable_dot_spacing_in_file_name:
+        folderName = folderName.replace("  ", ".").replace(" ", ".")
 
     old_path = get_folder_name_from_path(first_fileName)
     config.client.rename_folder(torrent_hash=title.hash, old_path=old_path, new_path=folderName)

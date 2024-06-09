@@ -175,6 +175,7 @@ default_download_dir = /media/HDD/Jellyfin/Anime
 default_meta = [WEBRip-1080p][UK+JA][Ukr Sub]
 wait_time = 10
 client_wait_time = 2
+enable_dot_spacing_in_file_name = True
 ```
 * ### titles.ini
 ```ini
