@@ -36,8 +36,10 @@ def add_release_by_name(config):
     title = Title()
     torrent = config.toloka.search(config.args.add)
     if not torrent:
-        config.logger.info(f"No results found. {config.args.add}")
-        return
+        message = f"No results found. {config.args.add}"
+        config.logger.info(message)
+        config.operation_result.response = message
+        return config.operation_result
     for index, item in enumerate(torrent[:10]):
         print(f"{index} : {item.name} - {item.url}")
     torrent = torrent[int(input("Enter the index of the desired torrent: "))]
@@ -90,21 +92,48 @@ def update_release(config):
     
     return config.operation_result
 
+@operation_tracker(OperationType.SEARCH_RELEASES)  
 def search_torrents(config):
-    torrents = config.toloka.search(config.args)
-    
-    return torrents
+    try:
+        torrent = config.toloka.search(config.args)
+        
+        if not torrent:
+            torrent = f"No results found. {config.args.add}"
+        config.operation_result.response = torrent
+    except Exception as e: 
+        config.operation_result.response = e
+        
+    return config.operation_result
 
+@operation_tracker(OperationType.GET_RELEASE)  
 def get_torrent(config):
-    torrent = config.toloka.get_torrent(f"{config.toloka.toloka_url}/{config.args}")
-    
-    return torrent
+    try:
+        torrent = config.toloka.get_torrent(f"{config.toloka.toloka_url}/{config.args}")
+        
+        if not torrent:
+            torrent = f"No results found."
+        config.operation_result.response = torrent
+    except Exception as e: 
+        config.operation_result.response = e
+        
+    return config.operation_result
 
+@operation_tracker(OperationType.ADD_TORRENT)  
 def add_torrent(config):
-    #TBD placeholder for now
-    
-    tolokaTorrentFile = config.toloka.download_torrent(f"{config.toloka.toloka_url}/{config.args}")
-    
-    config.client.add_torrent(torrents=tolokaTorrentFile, category="", tags=[""], is_paused=False, download_dir="")
-    
-    return ""
+    try:
+        config.args = "" if not config.args else config.args
+        torrent = config.toloka.download_torrent(f"{config.toloka.toloka_url}/{config.args.id}")
+        
+        # Safely get category and tags from config.args, default to empty string if None
+        category = getattr(config.args, 'category', '') if config.args else ''
+        tags = getattr(config.args, 'tags', '') if config.args else ''
+        download_dir = getattr(config.args, 'download_dir', '') if config.args else ''
+        config.client.add_torrent(torrents=torrent, category=category, tags=tags, is_paused=False, download_dir=download_dir)
+        
+        if not torrent:
+            torrent = f"No results found."
+        config.operation_result.response = torrent
+    except Exception as e: 
+        config.operation_result.response = e
+        
+    return config.operation_result

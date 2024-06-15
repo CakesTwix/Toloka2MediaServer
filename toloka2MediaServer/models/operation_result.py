@@ -9,6 +9,9 @@ class OperationType(Enum):
     UPDATE_ALL = "update all"
     ADD_BY_CODE = "add by code"
     ADD_BY_URL = "add by url"
+    SEARCH_RELEASES = "search releases"
+    GET_RELEASE = "get release"
+    ADD_TORRENT = "add torrent"
 
 class ResponseCode(Enum):
     SUCCESS = "success"
@@ -25,5 +28,6 @@ class OperationResult:
     status_message: Optional[str] = None
     response_code: Optional[ResponseCode] = None
     operation_logs: List[str] = field(default_factory=list)
+    response: Optional[str] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
