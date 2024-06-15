@@ -72,10 +72,14 @@ def process_torrent(config, title, torrent, new=False):
         source_episode = get_numbers(file.name)[title.episode_index]
         calculated_episode = str(int(source_episode) + title.adjusted_episode_number).zfill(len(source_episode))
 
-        new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta} {title.release_group}{title.ext_name}"
         if config.application_config.enable_dot_spacing_in_file_name:
+            # Use dots as separators and no hyphen
+            new_name = f"{title.torrent_name}.S{title.season_number}E{calculated_episode}.{title.meta}.{title.release_group}{title.ext_name}"
+            # Just in case replace spaces if any in name, meta or release group
             new_name = new_name.replace("  ", ".").replace(" ", ".")
-
+        else:
+            # Use spaces as separators and a hyphen before release_group
+            new_name = f"{title.torrent_name} S{title.season_number}E{calculated_episode} {title.meta}-{title.release_group}{title.ext_name}"
 
         if config.application_config.client == "qbittorrent":
             new_path = replace_second_part_in_path(file.name, new_name)
