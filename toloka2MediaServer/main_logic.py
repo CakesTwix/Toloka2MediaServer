@@ -121,8 +121,10 @@ def get_torrent(config):
 @operation_tracker(OperationType.ADD_TORRENT)  
 def add_torrent(config):
     try:
-        config.args = "" if not config.args else config.args
-        torrent = config.toloka.download_torrent(f"{config.toloka.toloka_url}/{config.args.id}")
+        if not config.args:
+            config.operation_result.response = "No args provided"
+            return config.operation_result
+        torrent = config.toloka.download_torrent(f"{config.toloka.toloka_url}/{config.args.url}")
         
         # Safely get category and tags from config.args, default to empty string if None
         category = getattr(config.args, 'category', '') if config.args else ''
