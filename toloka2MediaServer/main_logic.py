@@ -98,7 +98,7 @@ def search_torrents(config):
         torrent = config.toloka.search(config.args)
         
         if not torrent:
-            torrent = f"No results found. {config.args.add}"
+            torrent = f"No results found. {config.args}"
         config.operation_result.response = torrent
     except Exception as e: 
         config.operation_result.response = e
