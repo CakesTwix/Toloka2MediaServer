@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="toloka2MediaServer",
-    version="0.2.5",
+    version="0.2.6",
     description="Addon to facilitate locating and adding TV series/anime torrents from Toloka/Hurtom with standardized naming for Sonarr/Plex/Jellyfin integration.",
     url="https://github.com/CakesTwix/toloka2MediaServer",
     packages=find_packages(),
