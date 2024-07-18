@@ -74,7 +74,7 @@ def process_torrent(config, title, torrent, new=False):
 
         if config.application_config.enable_dot_spacing_in_file_name:
             # Use dots as separators and no hyphen
-            new_name = f"{title.torrent_name}.S{title.season_number}E{calculated_episode}.{title.meta}.{title.release_group}{title.ext_name}"
+            new_name = f"{title.torrent_name}.S{title.season_number}E{calculated_episode}.{title.meta}{title.release_group}{title.ext_name}"
             # Just in case replace spaces if any in name, meta or release group
             new_name = new_name.replace("  ", ".").replace(" ", ".")
         else:
