@@ -27,7 +27,7 @@ def process_torrent(config, title, torrent, new=False):
 
     else:
         added_torrent = config.client.get_torrent_info(status_filter=['paused'], category=category, tags=[tag], sort="added_on", reverse=True, torrent_hash=add_torrent_response)
-        title.hash = added_torrent.id
+        title.hash = added_torrent.hash_string
         get_filelist = added_torrent.get_files()
         
     config.logger.debug(added_torrent)

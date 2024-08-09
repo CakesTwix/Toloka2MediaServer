@@ -48,7 +48,7 @@ class TransmissionClient(BittorrentClient):
         return self.api_client.start_torrent(torrent_hashes)
 
     def delete_torrent(self, delete_files, torrent_hashes):
-        return self.api_client.remove_torrent(int(torrent_hashes), delete_data=delete_files)
+        return self.api_client.remove_torrent(torrent_hashes, delete_data=delete_files)
 
     def recheck_torrent(self, torrent_hashes):
         return self.api_client.verify_torrent(torrent_hashes)
