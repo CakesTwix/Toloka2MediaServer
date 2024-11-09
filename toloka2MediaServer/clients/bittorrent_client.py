@@ -1,18 +1,21 @@
 # bittorrent_client.py
 from abc import ABC, abstractmethod
 
+
 class BittorrentClient(ABC):
     def __init__(self):
         self._tags = None
         self._category = None
-        
+
     @abstractmethod
     def add_torrent(self, torrents, category, tags, is_paused, download_dir):
         """Add a new torrent."""
         pass
 
     @abstractmethod
-    def get_torrent_info(self, status_filter, category, tags, sort, reverse,torrent_hash):
+    def get_torrent_info(
+        self, status_filter, category, tags, sort, reverse, torrent_hash
+    ):
         """Retrieve information about torrents."""
         pass
 
@@ -55,7 +58,7 @@ class BittorrentClient(ABC):
     def end_session(self, torrent_hashes):
         """End client session."""
         pass
-    
+
     @property
     def tags(self):
         """Get the tags."""

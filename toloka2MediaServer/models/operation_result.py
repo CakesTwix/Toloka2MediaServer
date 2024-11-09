@@ -3,6 +3,7 @@ from typing import List, Any, Optional
 from datetime import datetime
 from enum import Enum
 
+
 class OperationType(Enum):
     GET_NUMBER = "get number"
     UPDATE_BY_CODE = "update by code"
@@ -12,6 +13,7 @@ class OperationType(Enum):
     SEARCH_RELEASES = "search releases"
     GET_RELEASE = "get release"
     ADD_TORRENT = "add torrent"
+
 
 class ResponseCode(Enum):
     SUCCESS = "success"

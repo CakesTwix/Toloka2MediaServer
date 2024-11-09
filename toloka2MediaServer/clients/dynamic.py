@@ -1,6 +1,8 @@
 def dynamic_client_init(config):
     """Dynamically import and initialize the torrent client based on the selected client in config."""
-    client_module_name = f"toloka2MediaServer.clients.{config.application_config.client.lower()}"
+    client_module_name = (
+        f"toloka2MediaServer.clients.{config.application_config.client.lower()}"
+    )
     client_class_name = f"{config.application_config.client.capitalize()}Client"
 
     try:
@@ -10,5 +12,7 @@ def dynamic_client_init(config):
         # Initialize the client instance
         return client_class(config)
     except Exception as e:
-        config.logger.critical(f"Failed to initialize the {config.application_config.client} client: {str(e)}")
+        config.logger.critical(
+            f"Failed to initialize the {config.application_config.client} client: {str(e)}"
+        )
         raise
