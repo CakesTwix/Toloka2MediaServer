@@ -42,7 +42,7 @@ class QbittorrentClient(BittorrentClient):
 
     def add_torrent(self, torrents, category, tags, is_paused, download_dir):
         return self.api_client.torrents.add(
-            torrent_files=torrents, category=category, tags=tags, is_paused=is_paused
+            torrent_files=torrents, category=category, tags=tags, is_paused=is_paused, download_path=download_dir
         )
 
     def get_torrent_info(

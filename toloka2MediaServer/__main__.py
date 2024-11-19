@@ -51,7 +51,7 @@ def main():
     if args.url:
         # --add --url https://toloka.to/t675888 --season 02 --index 2 --correction 0 --title "Tsukimichi -Moonlit Fantasy-"
         logger.debug(
-            f"--add {args.add} --url {args.url} --season {args.season} --index{args.index} --correction{args.correction} --title{args.title}"
+            f"--add {args.add} --url {args.url} --season {args.season} --index{args.index} --correction{args.correction} --title{args.title} --path{args.path}"
         )
         response = add_release_by_url(config)
         logger.debug(response)

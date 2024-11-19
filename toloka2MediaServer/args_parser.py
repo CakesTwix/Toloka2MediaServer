@@ -53,5 +53,8 @@ def get_parser():
     add_group.add_argument(
         "-t", "--title", type=str, help="Series name", required=False
     )
+    add_group.add_argument(
+        "-p", "--path", type=str, help="Series path", required=False
+    )
 
     return parser

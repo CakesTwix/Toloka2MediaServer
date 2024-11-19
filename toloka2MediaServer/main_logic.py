@@ -28,7 +28,10 @@ def add_release_by_url(config):
     title.season_number = season_number.zfill(2)
     title.ext_name = ".mkv"
     default_download_dir = config.application_config.default_download_dir
-    title.download_dir = default_download_dir
+    if (config.args.path):
+        title.download_dir = config.args.path
+    else:
+        title.download_dir = default_download_dir
     title.torrent_name = config.args.title.strip() or suggested_name.strip()
     title.release_group = torrent.author
     default_meta = config.application_config.default_meta
@@ -163,7 +166,7 @@ def add_torrent(config):
         # Safely get category and tags from config.args, default to empty string if None
         category = getattr(config.args, "category", "") if config.args else ""
         tags = getattr(config.args, "tags", "") if config.args else ""
-        download_dir = getattr(config.args, "download_dir", "") if config.args else ""
+        download_dir = getattr(config.args, "path", "") if config.args else ""
         config.client.add_torrent(
             torrents=torrent,
             category=category,
