@@ -7,7 +7,6 @@ class Title:
     code_name: str = ""
     episode_index: int = -1
     season_number: str = ""
-    ext_name: str = ""
     torrent_name: str = ""
     download_dir: str = ""
     publish_date: str = ""
@@ -32,7 +31,6 @@ def title_to_config(title):
     config[title.code_name] = {
         "episode_index": str(title.episode_index),
         "season_number": title.season_number,
-        "ext_name": title.ext_name,
         "torrent_name": f'"{title.torrent_name}"',
         "download_dir": title.download_dir,
         "publish_date": title.publish_date,
@@ -65,7 +63,6 @@ def config_to_title(config, code_name):
         code_name=code_name,
         episode_index=int(section.get("episode_index", -1)),
         season_number=section.get("season_number", ""),
-        ext_name=section.get("ext_name", ""),
         torrent_name=section.get("torrent_name", "").strip('"'),
         download_dir=section.get("download_dir", ""),
         publish_date=section.get("publish_date", ""),

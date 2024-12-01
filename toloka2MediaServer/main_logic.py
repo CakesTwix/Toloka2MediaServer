@@ -26,7 +26,6 @@ def add_release_by_url(config):
     # Collect additional data
     season_number = config.args.season
     title.season_number = season_number.zfill(2)
-    title.ext_name = ".mkv"
     default_download_dir = config.application_config.default_download_dir
     if (config.args.path):
         title.download_dir = config.args.path
@@ -61,7 +60,6 @@ def add_release_by_name(config):
     # Collect additional data
     season_number = input("Enter the season number: ")
     title.season_number = season_number.zfill(2)
-    title.ext_name = input('Enter the file extension, e.g., ".mkv": ') or ".mkv"
     default_download_dir = config.application_config.default_download_dir
     title.download_dir = (
         input(f"Default: {default_download_dir}:. Enter the download directory path.  ")
